@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiService } from '../services/api';
+import { toast } from 'sonner';
 
 const CartContext = createContext();
 
@@ -16,61 +16,44 @@ export const CartProvider = ({ children }) => {
     }, [cart]);
 
     /**
-     * Sends a CRM event to the backend.
-     * @param {string} evento - Event type (e.g., 'compra', 'add_to_cart').
-     * @param {Object} cartData - Data related to the cart or item.
-     * @param {Object|null} userData - User information.
+     * Adds a product to the cart, enforcing the available stock so the customer
+     * cannot add more units than exist. stock comes from the catalog API.
      */
-    const sendWebhook = async (evento, cartData, userData = null) => {
-        const payload = {
-            email: userData?.email || "invitado@dvl.com",
-            nombre: userData?.name || "Invitado",
-            evento: evento,
-            monto: parseFloat(evento === 'compra' ? cartData.total : cartData.itemPrice),
-            // Si es compra, enviamos los productos estructurados (id_producto + cantidad)
-            // Si es add_to_cart, mantenemos el string simple para CRM
-            productos: evento === 'compra' 
-                ? cartData.productos 
-                : [`${cartData.itemName} (${cartData.itemSize})`],
-            // Incluimos datos de envío si existen
-            shipping: cartData.shipping || null
-        };
-
-        try {
-            await apiService.sendCrmEvent(payload);
-        } catch (error) {
-            // Silently fail for CRM events to not interrupt UX
+    const addToCart = (product, size, color, image) => {
+        const stock = Number(product.stock_actual ?? 0);
+        if (stock <= 0) {
+            toast.error('Producto agotado');
+            return;
         }
-    };
 
-    const addToCart = (product, size, color, image, userData = null) => {
         setCart(prevCart => {
-            const existingItem = prevCart.find(item => 
+            const existingItem = prevCart.find(item =>
                 item.id === product.id && item.size === size && item.color === color
             );
 
-            let newCart;
             if (existingItem) {
-                newCart = prevCart.map(item => 
+                if (existingItem.quantity >= stock) {
+                    toast.error(`Solo hay ${stock} disponibles de ${product.name}`);
+                    return prevCart;
+                }
+                return prevCart.map(item =>
                     (item.id === product.id && item.size === size && item.color === color)
-                    ? { ...item, quantity: item.quantity + 1 }
-                    : item
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
                 );
-            } else {
-                newCart = [...prevCart, {
-                    id: product.id,
-                    id_producto: product.id_producto, // Nuevo campo SKU para SCM
-                    name: product.name,
-                    price: product.price,
-                    size,
-                    color,
-                    image,
-                    quantity: 1
-                }];
             }
 
-            // Se elimina el envío de webhook automático al añadir al carrito para optimizar flujos
-            return newCart;
+            return [...prevCart, {
+                id: product.id,
+                id_producto: product.id_producto,
+                name: product.name,
+                price: product.price,
+                size,
+                color,
+                image,
+                quantity: 1,
+                stock,
+            }];
         });
     };
 
@@ -78,13 +61,25 @@ export const CartProvider = ({ children }) => {
         setCart(prevCart => prevCart.filter((_, i) => i !== index));
     };
 
+    /**
+     * Adjusts a line quantity, capped at the item stock. Dropping to zero or
+     * below removes the line.
+     */
     const updateQuantity = (index, delta) => {
         setCart(prevCart => {
             const newCart = [...prevCart];
-            newCart[index].quantity += delta;
-            if (newCart[index].quantity <= 0) {
+            const item = newCart[index];
+            const nextQty = item.quantity + delta;
+
+            if (nextQty <= 0) {
                 newCart.splice(index, 1);
+                return newCart;
             }
+            if (item.stock && nextQty > item.stock) {
+                toast.error(`Solo hay ${item.stock} disponibles de ${item.name}`);
+                return prevCart;
+            }
+            newCart[index] = { ...item, quantity: nextQty };
             return newCart;
         });
     };
@@ -103,9 +98,8 @@ export const CartProvider = ({ children }) => {
             removeFromCart, 
             updateQuantity, 
             clearCart, 
-            cartTotal, 
+            cartTotal,
             cartCount,
-            sendWebhook 
         }}>
             {children}
         </CartContext.Provider>

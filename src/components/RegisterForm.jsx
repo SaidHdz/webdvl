@@ -24,7 +24,8 @@ const RegisterForm = ({ onToggleMode, onSuccess }) => {
 
     if (result.success) {
       toast.success('¡Registro exitoso! Bienvenido a DVL.');
-      onSuccess();
+      // New accounts are always customers; send them to the storefront.
+      onSuccess('/');
     } else {
       toast.error(result.message);
     }

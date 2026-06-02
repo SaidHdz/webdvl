@@ -24,7 +24,8 @@ const LoginForm = ({ onToggleMode, onSuccess }) => {
 
     if (result.success) {
       toast.success('¡Bienvenido de nuevo!');
-      onSuccess();
+      // Staff lands on the module hub; customers go to the storefront.
+      onSuccess(result.user?.type === 'staff' ? '/hub' : '/');
     } else {
       toast.error(result.message);
     }

@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 
 const ProductDetail = ({ product, onBack }) => {
   const { addToCart } = useCart();
-  const { user } = useAuth();
+  const soldOut = product.stock_actual <= 0;
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('white');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -38,8 +37,7 @@ const ProductDetail = ({ product, onBack }) => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, selectedColor, imagesList[currentImageIndex], user);
-    // Podríamos disparar un pequeño efecto visual aquí
+    addToCart(product, selectedSize, selectedColor, imagesList[currentImageIndex]);
   };
 
   return (
@@ -77,7 +75,16 @@ const ProductDetail = ({ product, onBack }) => {
             <h2 className="font-syne text-5xl md:text-6xl font-black uppercase tracking-[-0.05em] leading-none mb-4 text-white">
               {product.name}
             </h2>
-            <p className="text-accent font-bold text-xl tracking-[0.2em]">${product.price}</p>
+            <div className="flex items-center gap-4">
+              <p className="text-accent font-bold text-xl tracking-[0.2em]">${product.price}</p>
+              {soldOut ? (
+                <span className="text-[10px] font-black uppercase tracking-widest bg-red-500 text-white px-3 py-1 rounded-full">Agotado</span>
+              ) : (
+                <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${product.is_low ? 'bg-neon-lime text-dark-card' : 'bg-white/5 text-white/40'}`}>
+                  {product.stock_actual} disponibles
+                </span>
+              )}
+            </div>
           </div>
 
           <p className="text-white/60 leading-relaxed text-sm font-medium border-l-2 border-primary/40 pl-6 tracking-wide">
@@ -125,13 +132,14 @@ const ProductDetail = ({ product, onBack }) => {
             </div>
           </div>
 
-          <button 
+          <button
             onClick={handleAddToCart}
-            className="group relative w-full overflow-hidden rounded-3xl bg-white py-6 transition-all duration-500 hover:shadow-[0_0_50px_rgba(109,40,217,0.5)] active:scale-95 mt-4"
+            disabled={soldOut}
+            className={`group relative w-full overflow-hidden rounded-3xl py-6 transition-all duration-500 mt-4 ${soldOut ? 'bg-white/10 cursor-not-allowed' : 'bg-white hover:shadow-[0_0_50px_rgba(109,40,217,0.5)] active:scale-95'}`}
           >
-            <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            <span className="relative z-10 font-syne font-black text-black group-hover:text-white uppercase tracking-[0.4em] text-sm transition-colors duration-500">
-              Agregar al Carrito — ${product.price}
+            {!soldOut && <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />}
+            <span className={`relative z-10 font-syne font-black uppercase tracking-[0.4em] text-sm transition-colors duration-500 ${soldOut ? 'text-white/30' : 'text-black group-hover:text-white'}`}>
+              {soldOut ? 'Producto Agotado' : `Agregar al Carrito — $${product.price}`}
             </span>
           </button>
         </div>

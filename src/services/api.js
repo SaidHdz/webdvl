@@ -1,121 +1,143 @@
 /**
- * Centralized API service to handle all external communications.
- * This layer abstracts the fetch logic and ensures a common error handling strategy.
+ * Centralized API client for the local Express backend.
+ *
+ * Replaces the previous n8n webhook integration. All calls go to the relative
+ * "/api" path, which Vite proxies to the Express server in development. The
+ * session token is attached automatically as a Bearer header.
  */
 
-const API_BASE_URLS = {
-    login: import.meta.env.VITE_N8N_LOGIN_URL,
-    register: import.meta.env.VITE_N8N_REGISTER_URL,
-    crm: import.meta.env.VITE_N8N_CRM_URL,
-    adminSummary: import.meta.env.VITE_N8N_ADMIN_SUMMARY_URL,
-    adminSearch: `${import.meta.env.VITE_API_URL}/api/admin/search`,
-    adminRH: `${import.meta.env.VITE_API_URL}/api/admin/rh`,
-    adminSuppliers: "https://n8n.srv1574981.hstgr.cloud/webhook/api/admin/suppliers",
-    adminClients: `${import.meta.env.VITE_API_URL}/api/admin/clients`,
-    adminLogistics: "https://n8n.srv1574981.hstgr.cloud/webhook/api/admin/orders_logistics",
-    adminUpdateStatus: "https://n8n.srv1574981.hstgr.cloud/webhook/api/admin/orders/update-status",
+const TOKEN_KEY = 'dvl_token';
+
+/**
+ * Reads the stored session token.
+ * @returns {string|null} The JWT, or null if not authenticated.
+ */
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
+
+/**
+ * Persists (or clears) the session token.
+ * @param {string|null} token - The JWT to store, or null to remove it.
+ */
+export const setToken = (token) => {
+    if (token) {
+        localStorage.setItem(TOKEN_KEY, token);
+    } else {
+        localStorage.removeItem(TOKEN_KEY);
+    }
 };
 
 /**
- * Generic request handler.
- * @param {string} type - The type of request.
- * @param {Object} [payload] - The data to send.
- * @param {string} [method='POST'] - HTTP method.
- * @param {Object} [query] - Query parameters for GET requests.
- * @returns {Promise<Object>} The server response.
+ * Performs an authenticated JSON request against the API.
+ * @param {string} path - The endpoint path (e.g. "/api/auth/login").
+ * @param {Object} [options] - Fetch-like options.
+ * @param {string} [options.method] - HTTP method (default GET).
+ * @param {Object} [options.body] - JSON body for write methods.
+ * @param {Object} [options.query] - Query parameters appended to the URL.
+ * @returns {Promise<Object>} The parsed JSON response.
+ * @throws {Error} When the response status is not in the 2xx range.
  */
-const apiRequest = async (type, payload = null, method = 'POST', query = null) => {
-    let url = API_BASE_URLS[type];
-    
-    if (!url) {
-        throw new Error(`API URL for type "${type}" is not defined.`);
-    }
-
+const request = async (path, { method = 'GET', body = null, query = null } = {}) => {
+    let url = path;
     if (query) {
-        const queryString = new URLSearchParams(query).toString();
-        url = `${url}?${queryString}`;
+        const qs = new URLSearchParams(
+            Object.entries(query).filter(([, v]) => v !== undefined && v !== null && v !== '')
+        ).toString();
+        if (qs) url = `${url}?${qs}`;
     }
 
+    const headers = { 'Content-Type': 'application/json' };
+    const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const options = { method, headers };
+    if (body && method !== 'GET' && method !== 'DELETE') {
+        options.body = JSON.stringify(body);
+    }
+
+    let response;
     try {
-        const options = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
+        response = await fetch(url, options);
+    } catch {
+        // Network-level failure (server down, no connection).
+        throw new Error('No se pudo conectar con el servidor');
+    }
 
-        if (payload && (method === 'POST' || method === 'PUT')) {
-            options.body = JSON.stringify(payload);
-        }
+    const text = await response.text();
+    let data = {};
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch {
+        data = { success: false, message: 'Respuesta invalida del servidor' };
+    }
 
-        const response = await fetch(url, options);
-        const text = await response.text();
-        let data = {};
-
-        try {
-            data = text ? JSON.parse(text) : {};
-            
-            // NORMALIZACIÓN PARA N8N
-            if (Array.isArray(data) && data.length > 0 && data[0].body) {
-                const n8nOutput = data[0].body;
-                data = { success: true, ...n8nOutput };
-                if (n8nOutput.nombre || n8nOutput.email) {
-                    data.user = { name: n8nOutput.nombre || n8nOutput.name, email: n8nOutput.email };
-                }
-            } else if (Array.isArray(data) && data.length === 0) {
-                data = { success: true };
-            }
-            
-            if (response.ok && data.success === undefined) {
-                data.success = true;
-            }
-        } catch (e) {
-            // Manejo de errores específicos de n8n en modo test
-            if (text.includes('No Respond to Webhook node found')) {
-                console.warn('n8n Warning: Workflow executed but no response node was found. Assuming success.');
-                data = { success: true, message: 'Workflow iniciado' };
-            } else if (response.ok && (text === 'OK' || text.includes('Workflow started'))) {
-                data = { success: true };
-            } else {
-                data = { success: false, message: 'Respuesta inválida del servidor' };
-            }
-        }
-
-        // Si es un error 500 pero es por falta de nodo de respuesta, lo dejamos pasar como éxito
-        if (!response.ok && !text.includes('No Respond to Webhook node found')) {
-            throw new Error(data.message || `HTTP Error: ${response.status}`);
-        }
-
-        return data;
-    } catch (error) {
-        console.error(`API Error (${type}):`, error);
+    if (!response.ok) {
+        const error = new Error(data.message || `Error HTTP ${response.status}`);
+        // Expose the full payload so callers can read structured details
+        // (e.g. the list of out-of-stock products on a 409).
+        error.data = data;
+        error.status = response.status;
         throw error;
     }
+
+    return data;
 };
 
+/**
+ * Builds a standard CRUD set of methods for a REST resource.
+ * @param {string} base - The resource base path (e.g. "/api/suppliers").
+ * @returns {Object} Methods: list, get, create, update, remove.
+ */
+const crud = (base) => ({
+    list: (query) => request(base, { query }),
+    get: (id) => request(`${base}/${id}`),
+    create: (body) => request(base, { method: 'POST', body }),
+    update: (id, body) => request(`${base}/${id}`, { method: 'PUT', body }),
+    remove: (id) => request(`${base}/${id}`, { method: 'DELETE' }),
+});
+
 export const apiService = {
-    login: (email, password) => apiRequest('login', { email, password }),
-    register: (userData) => apiRequest('register', {
-        email: userData.email,
-        password: userData.password,
-        nombre: userData.nombre || userData.name
-    }),
-    sendCrmEvent: (payload) => apiRequest('crm', payload),
-    
-    // Mega-JSON Endpoint: Obtiene metrics, crm (clientes), scm (inventario) y rh (empleados) de un solo golpe
-    getAdminMegaData: () => apiRequest('adminSummary', null, 'GET'),
-    
-    // SCM Suppliers
-    getSuppliers: () => apiRequest('adminSuppliers', null, 'GET'),
+    request,
 
-    // CRM Clients
-    getClients: () => apiRequest('adminClients', null, 'GET'),
+    auth: {
+        login: (email, password) => request('/api/auth/login', { method: 'POST', body: { email, password } }),
+        register: (userData) => request('/api/auth/register', { method: 'POST', body: userData }),
+        me: () => request('/api/auth/me'),
+    },
 
-    // Logistics Orders
-    getLogistics: () => apiRequest('adminLogistics', null, 'GET'),
+    // Resource clients are wired to their routers in the corresponding phases.
+    roles: crud('/api/roles'),
+    users: crud('/api/users'),
+    products: crud('/api/products'),
+    inventory: crud('/api/inventory'),
 
-    updateOrderStatus: (idPedido, nuevoEstado) => apiRequest('adminUpdateStatus', {
-        id_pedido: idPedido,
-        nuevo_estado: nuevoEstado
-    }, 'POST'),
+    suppliers: {
+        ...crud('/api/suppliers'),
+        history: (id) => request(`/api/suppliers/${id}/history`),
+        sendMessage: (id, body) => request(`/api/suppliers/${id}/messages`, { method: 'POST', body }),
+    },
+
+    orders: {
+        ...crud('/api/orders'),
+        create: (body) => request('/api/orders', { method: 'POST', body }),
+        updateStatus: (id, estado) => request(`/api/orders/${id}/status`, { method: 'PUT', body: { estado } }),
+    },
+
+    purchaseOrders: {
+        create: (body) => request('/api/purchase-orders', { method: 'POST', body }),
+        receive: (id) => request(`/api/purchase-orders/${id}/receive`, { method: 'PUT' }),
+        cancel: (id) => request(`/api/purchase-orders/${id}/cancel`, { method: 'PUT' }),
+    },
+
+    clients: {
+        list: (query) => request('/api/clients', { query }),
+        history: (id) => request(`/api/clients/${id}/history`),
+    },
+
+    sales: {
+        summary: (range) => request('/api/sales/summary', { query: { range } }),
+    },
+
+    stats: {
+        overview: () => request('/api/stats/overview'),
+    },
 };

@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Header = ({ onMenuClick, onCartClick, onAdminClick }) => {
   const { cartCount } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isStaff, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -54,13 +54,13 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Acceso rápido a Admin si es admin */}
-        {isAuthenticated && user.role === 'admin' && (
-          <button 
+        {/* Quick access to the module hub for staff accounts */}
+        {isAuthenticated && isStaff && (
+          <button
             onClick={onAdminClick}
             className="hidden md:block text-[9px] font-black uppercase tracking-[2px] bg-white/5 border border-white/10 hover:border-accent text-white hover:text-accent px-4 py-2 rounded-full transition-all"
           >
-            Admin
+            Modulos
           </button>
         )}
 

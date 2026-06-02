@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 import { checkoutSchema } from '../schemas/validation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { apiService } from '../services/api';
 
 const Checkout = ({ onBack, onSuccess }) => {
-  const { cart, cartTotal, clearCart, sendWebhook } = useCart();
+  const { cart, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -29,43 +30,39 @@ const Checkout = ({ onBack, onSuccess }) => {
   const metodoEnvio = watch('metodoEnvio');
 
   const onSubmit = async (data) => {
+    if (cart.length === 0) {
+      toast.error('Tu carrito esta vacio');
+      return;
+    }
     setLoading(true);
 
-    // Mapeo estructurado para SCM/Inventario
-    const productosParaSCM = cart.map(item => ({
-      id_producto: item.id_producto, // Ej: "TEE-SLIME-01", "BNI-SEE-09"
-      cantidad: item.quantity || 1
-    }));
-
-    const purchaseData = {
-      items: cart,
-      total: cartTotal,
-      shipping: {
-          ...data,
-          // Consolidamos la dirección para el webhook
-          direccion: data.metodoEnvio === 'nacional' 
-            ? `${data.calle}, ${data.colonia}, ${data.ciudad}, CP: ${data.cp}`
-            : `Punto de entrega: ${data.puntoEntrega}`
-      },
-      productos: productosParaSCM // Array de objetos estructurados
+    const isNacional = data.metodoEnvio === 'nacional';
+    const payload = {
+      // Structured items; prices and totals are recomputed server-side.
+      items: cart.map((item) => ({ id_producto: item.id_producto, cantidad: item.quantity || 1 })),
+      tipo_envio: isNacional ? 'Nacional' : 'Local',
+      nombre: data.nombreCompleto,
+      telefono: data.telefono,
+      direccion: isNacional ? `${data.calle}, ${data.colonia}, ${data.ciudad}, CP: ${data.cp}` : null,
+      punto_entrega: isNacional ? null : data.puntoEntrega,
     };
 
-    const promise = sendWebhook('compra', purchaseData, user);
-
-    toast.promise(promise, {
-      loading: 'Procesando tu orden de compra...',
-      success: '¡Pedido registrado con éxito!',
-      error: 'Hubo un error al procesar el pago.'
-    });
-
     try {
-      await promise;
-      setTimeout(() => {
-        clearCart();
-        onSuccess();
-        setLoading(false);
-      }, 1500);
+      const res = await apiService.orders.create(payload);
+      toast.success(`Pedido ${res.data.id_pedido} registrado con exito`);
+      clearCart();
+      onSuccess();
     } catch (error) {
+      // On insufficient stock the API returns the offending products so we can
+      // tell the customer exactly what to adjust.
+      const insufficient = error.data?.insufficient;
+      if (insufficient?.length) {
+        const detail = insufficient.map((p) => `${p.name} (disponibles: ${p.disponible})`).join(', ');
+        toast.error(`Stock insuficiente: ${detail}`);
+      } else {
+        toast.error(error.message || 'No se pudo procesar el pedido');
+      }
+    } finally {
       setLoading(false);
     }
   };

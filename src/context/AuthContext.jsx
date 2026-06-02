@@ -1,90 +1,97 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiService } from '../services/api';
+import { apiService, setToken, getToken } from '../services/api';
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+/**
+ * Authentication provider backed by the Express API.
+ *
+ * The session is a JWT stored in localStorage. On mount, if a token exists we
+ * revalidate it against /me so the app rehydrates with fresh role/permissions
+ * (a stale cached user could otherwise show modules it no longer has).
+ */
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('dvl_user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const token = getToken();
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+        apiService.auth.me()
+            .then((data) => setUser(data.user))
+            .catch(() => {
+                // Token invalid or expired: drop it silently.
+                setToken(null);
+                setUser(null);
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
     /**
-     * Authenticates a user.
-     * @param {string} email 
-     * @param {string} password 
-     * @returns {Promise<Object>} Success status and message.
+     * Authenticates a user and stores the session token.
+     * @param {string} email
+     * @param {string} password
+     * @returns {Promise<{success: boolean, message?: string}>}
      */
     const login = async (email, password) => {
         try {
-            const data = await apiService.login(email, password);
-            
-            if (data.success) {
-                // Robust user data handling
-                const userData = data.user || { name: email.split('@')[0], email: email };
-                
-                // Asignar rol de admin si es Said Alejandro Hernandez o el correo específico
-                const isAdmin = 
-                    userData.email?.toLowerCase() === 'saidhdzdno@gmail.com' || 
-                    userData.name?.toLowerCase().includes('said');
-
-                const userWithRole = { 
-                    ...userData, 
-                    role: isAdmin ? 'admin' : 'user' 
-                };
-                
-                setUser(userWithRole);
-                localStorage.setItem('dvl_user', JSON.stringify(userWithRole));
-                return { success: true };
-            }
-            return { success: false, message: data.message || 'Credenciales incorrectas' };
+            const data = await apiService.auth.login(email, password);
+            setToken(data.token);
+            setUser(data.user);
+            return { success: true, user: data.user };
         } catch (error) {
-            return { success: false, message: 'Error de conexión con el servidor' };
+            return { success: false, message: error.message };
         }
     };
 
     /**
-     * Registers a new user.
-     * @param {Object} userData 
-     * @returns {Promise<Object>} Success status and message.
+     * Registers a storefront customer and starts a session.
+     * @param {Object} userData - { name|nombre, email, password }
+     * @returns {Promise<{success: boolean, message?: string}>}
      */
     const register = async (userData) => {
         try {
-            const data = await apiService.register(userData);
-            
-            if (data.success) {
-                const name = userData.nombre || userData.name;
-                const email = userData.email;
-
-                // Asignar rol de admin si es Said Alejandro Hernandez o el correo específico
-                const isAdmin = 
-                    email?.toLowerCase() === 'saidhdzdno@gmail.com' || 
-                    name?.toLowerCase().includes('said');
-
-                const newUser = { 
-                    name, 
-                    email,
-                    role: isAdmin ? 'admin' : 'user'
-                };
-                setUser(newUser);
-                localStorage.setItem('dvl_user', JSON.stringify(newUser));
-                return { success: true };
-            }
-            return { success: false, message: data.message || 'Error al crear la cuenta' };
+            const data = await apiService.auth.register({
+                nombre: userData.nombre || userData.name,
+                email: userData.email,
+                password: userData.password,
+            });
+            setToken(data.token);
+            setUser(data.user);
+            return { success: true, user: data.user };
         } catch (error) {
-            return { success: false, message: 'Error de conexión' };
+            return { success: false, message: error.message };
         }
     };
 
     const logout = () => {
+        setToken(null);
         setUser(null);
-        localStorage.removeItem('dvl_user');
     };
 
+    /**
+     * Checks whether the current user can access a given module.
+     * @param {string} module - Module key (crm | scm | erp).
+     * @returns {boolean}
+     */
+    const hasModule = (module) => Boolean(user?.permissions?.includes(module));
+
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            login,
+            register,
+            logout,
+            hasModule,
+            isAuthenticated: !!user,
+            isStaff: user?.type === 'staff',
+        }}>
             {children}
         </AuthContext.Provider>
     );

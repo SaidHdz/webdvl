@@ -1,16 +1,51 @@
-# React + Vite
+# DVL Supply Co. - ERP / SCM / CRM
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma integrada de tienda y back-office (CRM, SCM, ERP) construida con
+React + Vite en el frontend y una API REST en Express respaldada por SQLite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend**: React 19, Vite, React Router, Tailwind CSS, react-hook-form, Zod, Sonner.
+- **Backend**: Node + Express, better-sqlite3, bcryptjs, JSON Web Tokens.
+- **Base de datos**: SQLite (archivo local `data.db`, regenerable con el seed).
 
-## React Compiler
+Consulta `ARCHITECTURE.md` para el diseno y `IMPLEMENTATION_PLAN.md` para el avance.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Requisitos
 
-## Expanding the ESLint configuration
+- Node.js 20 o superior (probado en Node 22).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Puesta en marcha (desarrollo)
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Crear y poblar la base de datos (genera data.db)
+npm run seed
+
+# 3. Levantar frontend (5173) y API (3001) en paralelo
+npm run dev
+```
+
+El frontend proxya las llamadas `/api` hacia el backend, asi que basta con abrir
+`http://localhost:5173`.
+
+### Scripts disponibles
+
+| Script | Descripcion |
+|--------|-------------|
+| `npm run dev` | Frontend + API en paralelo (concurrently). |
+| `npm run dev:client` | Solo el frontend (Vite). |
+| `npm run dev:server` | Solo la API con recarga (`node --watch`). |
+| `npm run seed` | Resetea y puebla la base de datos. |
+| `npm run build` | Build de produccion del frontend. |
+
+## Credenciales de prueba
+
+| Rol | Email | Contrasena |
+|-----|-------|-----------|
+| Administrador | `saidhdzdno@gmail.com` | `admin123` |
+| Gerente CRM | `crm@dvl.com` | `demo123` |
+| Gerente SCM | `scm@dvl.com` | `demo123` |
+| Cliente | `cliente@dvl.com` | `demo123` |

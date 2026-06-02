@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
  * Follows the premium design language with neon-lime accents.
  */
 const NavMenu = ({ isOpen, onClose }) => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isStaff, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleNavigation = (path) => {
@@ -68,14 +68,14 @@ const NavMenu = ({ isOpen, onClose }) => {
             </>
           ) : (
             <>
-              {/* Sección Admin dentro del menú */}
-              {user.role === 'admin' && (
-                <button 
-                  onClick={() => handleNavigation('/admin')}
+              {/* Module hub access for staff accounts */}
+              {isStaff && (
+                <button
+                  onClick={() => handleNavigation('/hub')}
                   className="group flex items-center gap-4 text-sm font-black uppercase tracking-[5px] text-accent hover:scale-105 transition-all w-full text-left"
                 >
                   <span className="w-10 h-px bg-accent"></span>
-                  Panel Admin
+                  Menu de Modulos
                 </button>
               )}
 
