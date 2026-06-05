@@ -19,21 +19,22 @@ const Hero = ({ onExploreClick }) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle,rgba(255,255,255,0.03)_0%,transparent_70%)] blur-3xl animate-pulse" />
       </div>
 
-      <div className="relative z-10 space-y-8 px-4 max-w-4xl animate-fade-in">
-        <h1 className="font-syne text-8xl md:text-[12rem] font-black tracking-[-0.05em] leading-none text-white opacity-90 select-none">
+      <div className="relative z-10 space-y-8 px-6 max-w-5xl animate-fade-in">
+        <h1 className="font-syne text-8xl md:text-[12rem] font-black tracking-[-0.05em] leading-none text-white opacity-90 select-none mb-4">
           DVL
         </h1>
         
-        <div className="space-y-4">
-          <p className="text-white/60 text-lg md:text-xl font-bold uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed">
-            Diseños con carácter fuerte para quienes no temen destacar.
+        <div className="space-y-6">
+          <p className="text-white font-black text-2xl md:text-4xl uppercase tracking-tighter max-w-4xl mx-auto leading-[1.1]">
+            EL MUNDO YA TIENE DEMASIADA ROPA ABURRIDA. <br className="hidden md:block" />
+            CREADO POR MÍ, PARA LOS QUE BUSCAN ROZAR MI FLOW.
           </p>
-          <p className="text-white/20 text-xs font-black uppercase tracking-[0.5em]">
-            Limited Supply Co.
+          <p className="text-white/30 text-[10px] md:text-xs font-black uppercase tracking-[0.6em] pt-2">
+            DROP 01 — BY DIAVLO
           </p>
         </div>
 
-        <div className="pt-8">
+        <div className="pt-10">
           <button 
             onClick={onExploreClick}
             className="bg-white text-black px-12 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:bg-transparent hover:text-white border border-white transition-all duration-500 shadow-[0_0_40px_rgba(255,255,255,0.1)] active:scale-95 group"
