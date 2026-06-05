@@ -1,5 +1,7 @@
 import React from 'react';
 
+import logo from '../assets/logo_dvl.png';
+
 const Footer = () => {
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5 pt-20 pb-10 px-8 mt-20">
@@ -7,12 +9,12 @@ const Footer = () => {
         
         {/* Brand Mission */}
         <div className="col-span-1 md:col-span-2 space-y-8">
-          <h2 className="text-white font-black text-3xl tracking-tighter">DVL SUPPLY CO.</h2>
+          <img src={logo} alt="DVL Supply" className="h-16 w-auto object-contain opacity-80" />
           <p className="text-white/40 text-lg md:text-xl font-medium leading-relaxed max-w-2xl italic">
-            "El mundo ya tiene demasiada ropa aburrida y gente sin estilo. DVL es mi manifiesto: 
+            El mundo ya tiene demasiada ropa aburrida y gente sin estilo. DVL es mi manifiesto: 
             piezas de edición limitada con un diseño impecable y un flow ridículo. Está hecha 
             para los que están listos para dejar de pasar desapercibidos e intentar rozar mi nivel. 
-            Si no estás listo, la salida está arriba."
+            Si no estás listo, la salida está arriba.
           </p>
         </div>
 
