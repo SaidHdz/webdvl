@@ -56,12 +56,15 @@ const ProductDetail = ({ product, onBack }) => {
   };
 
   return (
-    <div className={`fixed inset-0 z-50 bg-[#050505] overflow-y-auto custom-scrollbar`}>
-      {/* Background Atmosphere */}
+    <div className={`fixed inset-0 z-50 bg-[#050505] overflow-y-auto overflow-x-hidden custom-scrollbar`}>
+      {/* Dynamic Background Atmosphere - Truly Static */}
       <div 
-        className="fixed inset-0 z-0 transition-all duration-1000"
+        className="fixed inset-0 z-0 transition-all duration-1000 pointer-events-none"
         style={{ 
-          background: `radial-gradient(circle at 25% 50%, ${theme.glow} 0%, transparent 75%)` 
+          background: `radial-gradient(circle at var(--glow-x, 25%) var(--glow-y, 50%), ${theme.glow} 0%, transparent 75%)`,
+          // Use CSS variables for responsive positioning via Tailwind or media query
+          '--glow-x': window.innerWidth < 1024 ? '50%' : '25%',
+          '--glow-y': window.innerWidth < 1024 ? '35%' : '50%'
         }}
       />
 
