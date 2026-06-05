@@ -4,7 +4,7 @@ import logo from '../assets/logo_dvl.png';
 
 const Hero = ({ onExploreClick }) => {
   return (
-    <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden mb-20 pt-32 lg:pt-0">
+    <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden mb-20 pt-32 lg:pt-32">
       {/* Red Atmospheric Glow at Top */}
       <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-red-600/20 to-transparent z-0 pointer-events-none" />
 
