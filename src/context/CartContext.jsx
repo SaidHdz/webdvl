@@ -16,16 +16,20 @@ export const CartProvider = ({ children }) => {
 
     const addToCart = (product) => {
         setCart(prev => {
-            // Check if item with SAME id, size AND color already exists
+            // Robust identification: Compare stringified IDs and variant properties
             const existing = prev.findIndex(item => 
-                item.id === product.id && 
+                String(item.id) === String(product.id) && 
                 item.size === product.size && 
                 item.color === product.color
             );
 
             if (existing !== -1) {
                 const newCart = [...prev];
-                newCart[existing].quantity += 1;
+                // Increase quantity, ensuring we don't accidentally overwrite with undefined
+                newCart[existing] = {
+                    ...newCart[existing],
+                    quantity: (newCart[existing].quantity || 1) + 1
+                };
                 return newCart;
             }
             return [...prev, { ...product, quantity: 1 }];

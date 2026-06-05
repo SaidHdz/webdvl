@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 const ProductDetail = ({ product, onBack }) => {
   const { addToCart } = useCart();
   const soldOut = product.stock_actual <= 0;
-  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedSize, setSelectedSize] = useState(product.category === 'Gorro' ? 'Unitalla' : 'M');
   const [selectedColor, setSelectedColor] = useState('white');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
@@ -142,7 +142,7 @@ const ProductDetail = ({ product, onBack }) => {
                             <div className="space-y-3">
                                 <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Talla</span>
                                 <div className="flex gap-2">
-                                    {['S', 'M', 'L', 'XL'].map((size) => (
+                                    {(product.category === 'Gorro' ? ['Unitalla'] : ['S', 'M', 'L', 'XL']).map((size) => (
                                         <button key={size} onClick={() => setSelectedSize(size)} className={`w-11 h-11 rounded-xl font-black text-[10px] transition-all duration-300 border ${selectedSize === size ? 'bg-white text-black border-white' : 'bg-transparent text-white border-white/5 hover:border-white/20'}`}>{size}</button>
                                     ))}
                                 </div>

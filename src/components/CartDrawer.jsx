@@ -165,13 +165,16 @@ const CartDrawer = ({ isOpen, onClose, onCheckout, onScrollToCollection }) => {
                             <div className="space-y-2">
                                 <span className="text-[8px] font-black uppercase tracking-[3px] text-white/20">Color</span>
                                 <div className="flex gap-2">
-                                    {['Blanco', 'Negro'].map(c => (
+                                    {[
+                                        { label: 'Blanco', value: 'white' },
+                                        { label: 'Negro', value: 'black' }
+                                    ].map(c => (
                                         <button 
-                                            key={c}
-                                            onClick={() => handleUpdateVariant(index, 'color', c)}
-                                            className={`px-3 py-1.5 rounded-lg text-[9px] font-black transition-all border ${item.color === c ? 'bg-white text-black border-white' : 'bg-transparent text-white/40 border-white/10 hover:border-white/30'}`}
+                                            key={c.value}
+                                            onClick={() => handleUpdateVariant(index, 'color', c.value)}
+                                            className={`px-3 py-1.5 rounded-lg text-[9px] font-black transition-all border ${item.color === c.value ? 'bg-white text-black border-white' : 'bg-transparent text-white/40 border-white/10 hover:border-white/30'}`}
                                         >
-                                            {c}
+                                            {c.label}
                                         </button>
                                     ))}
                                 </div>
