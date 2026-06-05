@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { toast } from 'sonner';
 import { useCart } from '../context/CartContext';
+import TiltedCard from './ui/TiltedCard';
 
 const ProductDetail = ({ product, onBack }) => {
   const { addToCart } = useCart();
@@ -86,12 +87,19 @@ const ProductDetail = ({ product, onBack }) => {
             
             {/* Product Section - Increased top padding to compensate for navbar and improve centering */}
             <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-3 lg:p-12 pt-32 lg:pt-16 shrink-0 overflow-hidden">
-                {/* Main Product Image - Strict height constraints to prevent 'enlargement' in production */}
+                {/* Main Product Image with Tilt Effect */}
                 <div className={`relative z-10 w-full h-[35vh] lg:h-[50vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
-                    <img 
-                        src={imagesList[currentImageIndex]} 
-                        alt={product.name} 
-                        className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)] select-none" 
+                    <TiltedCard
+                        imageSrc={imagesList[currentImageIndex]}
+                        altText={product.name}
+                        containerHeight="100%"
+                        containerWidth="100%"
+                        imageHeight="100%"
+                        imageWidth="100%"
+                        rotateAmplitude={10}
+                        scaleOnHover={1.05}
+                        showMobileWarning={false}
+                        showTooltip={false}
                     />
                 </div>
 

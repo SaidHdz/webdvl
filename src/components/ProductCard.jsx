@@ -1,4 +1,5 @@
 import React from 'react';
+import TiltedCard from './ui/TiltedCard';
 
 /**
  * Premium technical product card design.
@@ -15,7 +16,7 @@ const ProductCard = ({ product, onClick }) => {
       className={`group relative bg-[#1C1C1C] border border-white/80 rounded-[28px] lg:rounded-[32px] cursor-pointer transition-all duration-500 hover:scale-[1.02] shadow-2xl overflow-hidden flex flex-col ${soldOut ? 'opacity-70' : ''}`}
     >
       {/* 1. Upper Section: Capsule Image Container with Gradient */}
-      <div className="relative m-1.5 lg:m-2 mb-0 h-[180px] lg:h-[220px] bg-gradient-to-br from-[#E5E7EB] to-white rounded-t-[20px] lg:rounded-t-[24px] rounded-b-[28px] lg:rounded-b-[32px] overflow-hidden flex items-center justify-center p-6 lg:p-8 shrink-0">
+      <div className="relative m-1.5 lg:m-2 mb-0 h-[180px] lg:h-[220px] bg-gradient-to-br from-[#E5E7EB] to-white rounded-t-[20px] lg:rounded-t-[24px] rounded-b-[28px] lg:rounded-b-[32px] overflow-hidden flex items-center justify-center shrink-0">
         
         {/* Wishlist Button */}
         <button 
@@ -27,15 +28,20 @@ const ProductCard = ({ product, onClick }) => {
           </svg>
         </button>
 
-        {/* Product Image */}
-        <div className="relative group-hover:scale-110 transition-transform duration-700 w-full h-full flex items-center justify-center">
-          <img
-            src={mainImage}
-            alt={product.name}
-            className="max-w-full max-h-full object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.1)]"
-          />
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4/5 h-2 bg-black/5 blur-md rounded-[100%]" />
-        </div>
+        {/* Product Image with Tilt Effect */}
+        <TiltedCard
+          imageSrc={mainImage}
+          altText={product.name}
+          captionText={product.name}
+          containerHeight="100%"
+          containerWidth="100%"
+          imageHeight="100%"
+          imageWidth="100%"
+          rotateAmplitude={12}
+          scaleOnHover={1.15}
+          showMobileWarning={false}
+          showTooltip={false}
+        />
 
         {/* Sold Out Badge */}
         {soldOut && (
