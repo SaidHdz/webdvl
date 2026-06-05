@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import ProductCard from './ProductCard';
-import { apiService } from '../services/api';
+import { supabase } from '../lib/supabase';
 
 /**
- * Storefront catalog. Loads products (with live stock) from the API and offers
- * client-side filters: text search, category, price range and availability.
- * Filtering is done in-memory over the fetched list for instant feedback.
+ * Storefront catalog powered by Supabase.
+ * Loads products directly from the cloud database and applies in-memory filters
+ * for instant user feedback.
  */
 const ProductGrid = ({ onProductClick }) => {
     const [products, setProducts] = useState([]);
@@ -18,15 +18,42 @@ const ProductGrid = ({ onProductClick }) => {
     const [inStockOnly, setInStockOnly] = useState(false);
 
     useEffect(() => {
-        apiService.products.list()
-            .then((res) => {
-                setProducts(res.data);
-                const highest = res.data.reduce((max, p) => Math.max(max, p.price), 0);
+        const fetchProducts = async () => {
+            try {
+                // Fetch products with their current stock levels from the inventory join
+                const { data, error } = await supabase
+                    .from('products')
+                    .select(`
+                        *,
+                        inventory (
+                            stock_actual
+                        )
+                    `)
+                    .eq('active', true);
+
+                if (error) throw error;
+
+                // Flatten the data for easier consumption in the UI
+                const formattedProducts = data.map(p => ({
+                    ...p,
+                    stock_actual: p.inventory?.stock_actual || 0,
+                    // Check for low stock (demonstration threshold: 5)
+                    is_low: (p.inventory?.stock_actual || 0) <= 5 && (p.inventory?.stock_actual || 0) > 0
+                }));
+
+                setProducts(formattedProducts);
+                const highest = formattedProducts.reduce((max, p) => Math.max(max, p.price), 0);
                 setMaxPrice(highest);
                 setPriceFilter(highest);
-            })
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
+            } catch (err) {
+                console.error('Error loading products:', err.message);
+                toast.error('No se pudieron cargar los productos');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
     }, []);
 
     const categories = useMemo(

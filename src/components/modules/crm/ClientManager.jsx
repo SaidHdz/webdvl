@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import Modal from '../../ui/Modal';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
 
 /**
- * CRM client management: searchable customer list with aggregated spend, plus a
- * detailed history modal (orders with line items) for the integrated CRM/SCM
- * view. Also exports the visible list to CSV.
+ * CRM client management powered by Supabase.
  */
 const ClientManager = () => {
     const [clients, setClients] = useState([]);
@@ -16,28 +14,73 @@ const ClientManager = () => {
     const [detail, setDetail] = useState(null);
     const [detailLoading, setDetailLoading] = useState(false);
 
-    const load = (searchTerm = search) => {
+    const load = async (searchTerm = search) => {
         setLoading(true);
-        apiService.clients.list({ search: searchTerm })
-            .then((res) => setClients(res.data))
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
+        try {
+            // Fetch users with their orders to calculate stats
+            let query = supabase
+                .from('users')
+                .select('*, orders(total, estado)')
+                .eq('type', 'customer');
+            
+            if (searchTerm) {
+                query = query.or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+
+            const formatted = data.map(u => {
+                const validOrders = u.orders.filter(o => o.estado !== 'Cancelado');
+                return {
+                    ...u,
+                    num_pedidos: validOrders.length,
+                    total_compras: validOrders.reduce((sum, o) => sum + Number(o.total), 0),
+                    puntos_lealtad: Math.floor(validOrders.reduce((sum, o) => sum + Number(o.total), 0) / 10) // Example loyalty logic
+                };
+            });
+
+            setClients(formatted.sort((a, b) => b.total_compras - a.total_compras));
+        } catch (err) {
+            toast.error('Error al cargar clientes: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => { load(''); }, []);
     useEffect(() => {
         const handle = setTimeout(() => load(search), 300);
         return () => clearTimeout(handle);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search]);
 
-    const openDetail = (client) => {
+    const openDetail = async (client) => {
         setDetail({ client });
         setDetailLoading(true);
-        apiService.clients.history(client.id)
-            .then((res) => setDetail(res.data))
-            .catch((err) => { toast.error(err.message); setDetail(null); })
-            .finally(() => setDetailLoading(false));
+        try {
+            const { data, error } = await supabase
+                .from('orders')
+                .select('*, order_items(*, products(name))')
+                .eq('user_id', client.id)
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+
+            const ordersWithItems = data.map(o => ({
+                ...o,
+                items: o.order_items.map(it => ({
+                    ...it,
+                    product_name: it.products?.name
+                }))
+            }));
+
+            setDetail({ client, orders: ordersWithItems });
+        } catch (err) {
+            toast.error('Error al cargar historial: ' + err.message);
+            setDetail(null);
+        } finally {
+            setDetailLoading(false);
+        }
     };
 
     const downloadCSV = () => {

@@ -6,8 +6,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/01_SLIME_WHITE.png', '/IMAGENES/01_SLIME_WHITE_BACK.png'],
-            black: ['/IMAGENES/01_SLIME_BLACK.png', '/IMAGENES/01_SLIME_BLACK_BACK.png']
+            white: ['/imagenes/01_SLIME_WHITE.png', '/imagenes/01_SLIME_WHITE_BACK.png'],
+            black: ['/imagenes/01_SLIME_BLACK.png', '/imagenes/01_SLIME_BLACK_BACK.png']
         }
     },
     { 
@@ -17,8 +17,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/02_EYES_WHITE.png', '/IMAGENES/02_EYES_WHITE_BACK.png'],
-            black: ['/IMAGENES/02_EYES_BLACK.png', '/IMAGENES/02_EYES_BLACK_BACK.png']
+            white: ['/imagenes/02_EYES_WHITE.png', '/imagenes/02_EYES_WHITE_BACK.png'],
+            black: ['/imagenes/02_EYES_BLACK.png', '/imagenes/02_EYES_BLACK_BACK.png']
         }
     },
     { 
@@ -28,8 +28,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/03_HEART_WHITE.png'],
-            black: ['/IMAGENES/03_HEART_BLACK.png']
+            white: ['/imagenes/03_HEART_WHITE.png'],
+            black: ['/imagenes/03_HEART_BLACK.png']
         }
     },
     { 
@@ -39,8 +39,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/04_DEVIL_WHITE.png', '/IMAGENES/04_DEVIL_WHITE_BACK.png'],
-            black: ['/IMAGENES/04_DEVIL_BLACK.png', '/IMAGENES/04_DEVIL_BLACK_BACK.png']
+            white: ['/imagenes/04_DEVIL_WHITE.png', '/imagenes/04_DEVIL_WHITE_BACK.png'],
+            black: ['/imagenes/04_DEVIL_BLACK.png', '/imagenes/04_DEVIL_BLACK_BACK.png']
         }
     },
     { 
@@ -50,8 +50,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/05_FLOWERS_WHITE.png', '/IMAGENES/05_FLOWERS_WHITE_BACK.png'],
-            black: ['/IMAGENES/05_FLOWERS_BLACK.png', '/IMAGENES/05_FLOWERS_BLACK_BACK.png']
+            white: ['/imagenes/05_FLOWERS_WHITE.png', '/imagenes/05_FLOWERS_WHITE_BACK.png'],
+            black: ['/imagenes/05_FLOWERS_BLACK.png', '/imagenes/05_FLOWERS_BLACK_BACK.png']
         }
     },
     { 
@@ -61,8 +61,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/06_VOODO_WHITE_BACK.png'],
-            black: ['/IMAGENES/06_VOODO_BLACK_BACK.png']
+            white: ['/imagenes/06_VOODO_WHITE_BACK.png'],
+            black: ['/imagenes/06_VOODO_BLACK_BACK.png']
         }
     },
     { 
@@ -72,8 +72,8 @@ export const products = [
         price: 350, 
         description: '100% algodón / 220g / Corte Oversize', 
         images: {
-            white: ['/IMAGENES/07_DIAVLOO_WHITE.png', '/IMAGENES/07_DIAVLOO_WHITE_BACK.png'],
-            black: ['/IMAGENES/07_DIAVLOO_BLACK.png', '/IMAGENES/07_DIAVLOO_BLACK_BACK.png']
+            white: ['/imagenes/07_DIAVLOO_WHITE.png', '/imagenes/07_DIAVLOO_WHITE_BACK.png'],
+            black: ['/imagenes/07_DIAVLOO_BLACK.png', '/imagenes/07_DIAVLOO_BLACK_BACK.png']
         }
     },
     { 
@@ -83,8 +83,8 @@ export const products = [
         price: 250, 
         description: '100% acrílico / Gorro tejido', 
         images: {
-            white: ['/IMAGENES/01_DEVILEYES_WHITE.png'],
-            black: ['/IMAGENES/01_DEVILEYES_BLACK.png'] 
+            white: ['/imagenes/01_DEVILEYES_WHITE.png'],
+            black: ['/imagenes/01_DEVILEYES_BLACK.png'] 
         }
     },
     { 
@@ -94,8 +94,8 @@ export const products = [
         price: 250, 
         description: '100% acrílico / Gorro tejido', 
         images: {
-            white: ['/IMAGENES/02_SEEYOU_WHITE.png'], 
-            black: ['/IMAGENES/02_SEEYOU_BLACK.png'] 
+            white: ['/imagenes/02_SEEYOU_WHITE.png'], 
+            black: ['/imagenes/02_SEEYOU_BLACK.png'] 
         }
     }
 ];

@@ -3,12 +3,11 @@ import { toast } from 'sonner';
 import Modal from '../../ui/Modal';
 import SendSupplierMessageModal from './SendSupplierMessageModal';
 import RestockModal from './RestockModal';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
 
 /**
- * SCM inventory management: adjust stock and reorder thresholds, filter by
- * low-stock, and trigger a reorder message to the product supplier directly
- * from a critical row (Pull strategy).
+ * SCM inventory management powered by Supabase.
+ * Handles stock adjustments and reorder threshold management.
  */
 const InventoryManager = () => {
     const [items, setItems] = useState([]);
@@ -26,18 +25,57 @@ const InventoryManager = () => {
     // Restock (purchase order) modal target.
     const [restockTarget, setRestockTarget] = useState(null);
 
-    const load = (searchTerm = search, low = lowOnly) => {
+    const load = async (searchTerm = search, low = lowOnly) => {
         setLoading(true);
-        Promise.all([
-            apiService.inventory.list({ search: searchTerm, lowOnly: low ? '1' : undefined }),
-            apiService.suppliers.list(),
-        ])
-            .then(([invRes, supRes]) => {
-                setItems(invRes.data);
-                setSuppliers(supRes.data);
-            })
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
+        try {
+            // Fetch suppliers for the dropdown
+            const suppliersRes = await supabase.from('suppliers').select('id, nombre_taller').order('nombre_taller');
+            if (suppliersRes.error) throw suppliersRes.error;
+            setSuppliers(suppliersRes.data);
+
+            // Fetch inventory with relational data
+            let query = supabase
+                .from('inventory')
+                .select(`
+                    *,
+                    products (name, id_producto),
+                    suppliers (nombre_taller)
+                `);
+            
+            if (low) {
+                // We can't easily filter by a computed column in a simple select if the threshold varies per row
+                // without an RPC or complex filter. For now, we'll filter client-side or use a gte filter if possible.
+                // In Postgres we could do .filter('stock_actual', 'lte', 'stock_minimo') but PostgREST doesn't support col vs col directly.
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+
+            let formatted = data.map(i => ({
+                ...i,
+                name: i.products?.name,
+                id_producto: i.products?.id_producto,
+                supplier_name: i.suppliers?.nombre_taller,
+                is_low: i.stock_actual <= i.stock_minimo
+            }));
+
+            // Client-side filtering for search and low stock
+            if (searchTerm) {
+                formatted = formatted.filter(i => 
+                    i.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    i.id_producto?.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            if (low) {
+                formatted = formatted.filter(i => i.is_low);
+            }
+
+            setItems(formatted);
+        } catch (err) {
+            toast.error('Error al cargar inventario: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => { load('', false); }, []);
@@ -45,7 +83,6 @@ const InventoryManager = () => {
     useEffect(() => {
         const handle = setTimeout(() => load(search, lowOnly), 300);
         return () => clearTimeout(handle);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search, lowOnly]);
 
     const lowCount = items.filter((i) => i.is_low).length;
@@ -60,11 +97,18 @@ const InventoryManager = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            await apiService.inventory.update(editing.id, {
-                stock_actual: Number(form.stock_actual),
-                stock_minimo: Number(form.stock_minimo),
-                supplier_id: form.supplier_id ? Number(form.supplier_id) : null,
-            });
+            const { error } = await supabase
+                .from('inventory')
+                .update({
+                    stock_actual: Number(form.stock_actual),
+                    stock_minimo: Number(form.stock_minimo),
+                    supplier_id: form.supplier_id ? Number(form.supplier_id) : null,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', editing.id);
+            
+            if (error) throw error;
+
             toast.success('Inventario actualizado');
             setEditing(null);
             load();

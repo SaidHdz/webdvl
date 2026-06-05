@@ -3,15 +3,16 @@ import { toast } from 'sonner';
 import Modal from '../../ui/Modal';
 import SendSupplierMessageModal from './SendSupplierMessageModal';
 import PurchaseOrderModal from './PurchaseOrderModal';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../context/AuthContext';
 
 const EMPTY_FORM = { nombre_taller: '', contacto: '', correo: '', telefono: '', insumo: '' };
 
 /**
- * SCM supplier management: CRUD plus a history view (supplied products and the
- * timeline of messages sent) and a quick action to message a supplier.
+ * SCM supplier management: CRUD plus a history view powered by Supabase.
  */
 const SupplierManager = () => {
+    const { user } = useAuth();
     const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -26,19 +27,29 @@ const SupplierManager = () => {
     const [messageOpen, setMessageOpen] = useState(false);
     const [poOpen, setPoOpen] = useState(false);
 
-    const load = (searchTerm = search) => {
+    const load = async (searchTerm = search) => {
         setLoading(true);
-        apiService.suppliers.list({ search: searchTerm })
-            .then((res) => setSuppliers(res.data))
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
+        try {
+            let query = supabase.from('suppliers').select('*').order('nombre_taller');
+            
+            if (searchTerm) {
+                query = query.or(`nombre_taller.ilike.%${searchTerm}%,contacto.ilike.%${searchTerm}%,insumo.ilike.%${searchTerm}%`);
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+            setSuppliers(data);
+        } catch (err) {
+            toast.error('Error al cargar proveedores: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => { load(''); }, []);
     useEffect(() => {
         const handle = setTimeout(() => load(search), 300);
         return () => clearTimeout(handle);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search]);
 
     const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setEditOpen(true); };
@@ -53,10 +64,12 @@ const SupplierManager = () => {
         setSaving(true);
         try {
             if (editing) {
-                await apiService.suppliers.update(editing.id, form);
+                const { error } = await supabase.from('suppliers').update(form).eq('id', editing.id);
+                if (error) throw error;
                 toast.success('Proveedor actualizado');
             } else {
-                await apiService.suppliers.create(form);
+                const { error } = await supabase.from('suppliers').insert(form);
+                if (error) throw error;
                 toast.success('Proveedor registrado');
             }
             setEditOpen(false);
@@ -71,7 +84,8 @@ const SupplierManager = () => {
     const handleDelete = async (s) => {
         if (!window.confirm(`Eliminar al proveedor "${s.nombre_taller}"?`)) return;
         try {
-            await apiService.suppliers.remove(s.id);
+            const { error } = await supabase.from('suppliers').delete().eq('id', s.id);
+            if (error) throw error;
             toast.success('Proveedor eliminado');
             load();
         } catch (err) {
@@ -79,13 +93,67 @@ const SupplierManager = () => {
         }
     };
 
-    const openHistory = (s) => {
+    const openHistory = async (s) => {
         setHistory({ supplier: s });
         setHistoryLoading(true);
-        apiService.suppliers.history(s.id)
-            .then((res) => setHistory(res.data))
-            .catch((err) => { toast.error(err.message); setHistory(null); })
-            .finally(() => setHistoryLoading(false));
+        try {
+            // Parallel fetching for performance
+            const [productsRes, messagesRes, posRes] = await Promise.all([
+                supabase.from('inventory').select('*, products(name)').eq('supplier_id', s.id),
+                supabase.from('supplier_messages').select('*, products(name), users(name)').eq('supplier_id', s.id).order('created_at', { ascending: false }),
+                supabase.from('purchase_orders').select('*, purchase_order_items(*, products(name))').eq('supplier_id', s.id).order('created_at', { ascending: false })
+            ]);
+
+            if (productsRes.error) throw productsRes.error;
+            if (messagesRes.error) throw messagesRes.error;
+            if (posRes.error) throw posRes.error;
+
+            const products = productsRes.data.map(i => ({
+                id: i.products.id,
+                name: i.products.name,
+                stock_actual: i.stock_actual,
+                stock_minimo: i.stock_minimo,
+                is_low: i.stock_actual <= i.stock_minimo
+            }));
+
+            const messages = messagesRes.data.map(m => ({
+                ...m,
+                product_name: m.products?.name,
+                sent_by_name: m.users?.name
+            }));
+
+            const purchaseOrders = posRes.data.map(po => ({
+                ...po,
+                items: po.purchase_order_items.map(it => ({
+                    ...it,
+                    product_name: it.products?.name
+                }))
+            }));
+
+            const totalComprado = purchaseOrders
+                .filter(po => po.status === 'received' || po.estado === 'Recibido')
+                .reduce((sum, po) => sum + Number(po.total), 0);
+
+            setHistory({
+                supplier: s,
+                products,
+                messages,
+                purchase_orders: purchaseOrders,
+                stats: {
+                    total_productos: products.length,
+                    productos_bajos: products.filter(p => p.is_low).length,
+                    total_mensajes: messages.length,
+                    total_ordenes: purchaseOrders.length,
+                    total_comprado: totalComprado
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            toast.error('Error al cargar historial');
+            setHistory(null);
+        } finally {
+            setHistoryLoading(false);
+        }
     };
 
     const reloadHistory = () => {
@@ -94,7 +162,32 @@ const SupplierManager = () => {
 
     const receivePO = async (po) => {
         try {
-            await apiService.purchaseOrders.receive(po.id);
+            // 1. Update PO status
+            const { error: poError } = await supabase
+                .from('purchase_orders')
+                .update({ estado: 'Recibido', received_at: new Date().toISOString() })
+                .eq('id', po.id);
+            if (poError) throw poError;
+
+            // 2. Increment stock for each item
+            for (const item of po.items) {
+                if (item.product_id) {
+                    // This should ideally be a single RPC call to ensure atomicity
+                    const { data: currentInv } = await supabase
+                        .from('inventory')
+                        .select('stock_actual')
+                        .eq('product_id', item.product_id)
+                        .single();
+                    
+                    if (currentInv) {
+                        await supabase
+                            .from('inventory')
+                            .update({ stock_actual: currentInv.stock_actual + Number(item.cantidad) })
+                            .eq('product_id', item.product_id);
+                    }
+                }
+            }
+
             toast.success(`${po.folio} recibida — stock actualizado`);
             reloadHistory();
         } catch (err) {
@@ -105,7 +198,8 @@ const SupplierManager = () => {
     const cancelPO = async (po) => {
         if (!window.confirm(`Cancelar la orden ${po.folio}?`)) return;
         try {
-            await apiService.purchaseOrders.cancel(po.id);
+            const { error } = await supabase.from('purchase_orders').update({ estado: 'Cancelado' }).eq('id', po.id);
+            if (error) throw error;
             toast.success(`${po.folio} cancelada`);
             reloadHistory();
         } catch (err) {

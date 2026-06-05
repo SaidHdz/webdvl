@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import Modal from '../../ui/Modal';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
 
 const MODULES = [
     { key: 'crm', label: 'CRM' },
@@ -12,8 +12,7 @@ const MODULES = [
 const EMPTY_FORM = { name: '', description: '', permissions: [] };
 
 /**
- * ERP roles management: create, edit and delete custom roles and choose which
- * modules each one can access. System roles are read-only.
+ * ERP roles management powered by Supabase.
  */
 const RoleManager = () => {
     const [roles, setRoles] = useState([]);
@@ -23,15 +22,31 @@ const RoleManager = () => {
     const [form, setForm] = useState(EMPTY_FORM);
     const [saving, setSaving] = useState(false);
 
-    const load = () => {
+    const load = async () => {
         setLoading(true);
-        apiService.roles.list()
-            .then((res) => setRoles(res.data))
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
+        try {
+            // Fetch roles with count of associated users
+            const { data, error } = await supabase
+                .from('roles')
+                .select('*, users(count)')
+                .order('name');
+            
+            if (error) throw error;
+
+            const formatted = data.map(r => ({
+                ...r,
+                user_count: r.users?.[0]?.count || 0
+            }));
+
+            setRoles(formatted);
+        } catch (err) {
+            toast.error('Error al cargar roles: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(load, []);
+    useEffect(() => { load(); }, []);
 
     const openCreate = () => {
         setEditing(null);
@@ -63,10 +78,12 @@ const RoleManager = () => {
         setSaving(true);
         try {
             if (editing) {
-                await apiService.roles.update(editing.id, form);
+                const { error } = await supabase.from('roles').update(form).eq('id', editing.id);
+                if (error) throw error;
                 toast.success('Rol actualizado');
             } else {
-                await apiService.roles.create(form);
+                const { error } = await supabase.from('roles').insert(form);
+                if (error) throw error;
                 toast.success('Rol creado');
             }
             setModalOpen(false);
@@ -81,7 +98,8 @@ const RoleManager = () => {
     const handleDelete = async (role) => {
         if (!window.confirm(`Eliminar el rol "${role.name}"? Esta accion no se puede deshacer.`)) return;
         try {
-            await apiService.roles.remove(role.id);
+            const { error } = await supabase.from('roles').delete().eq('id', role.id);
+            if (error) throw error;
             toast.success('Rol eliminado');
             load();
         } catch (err) {

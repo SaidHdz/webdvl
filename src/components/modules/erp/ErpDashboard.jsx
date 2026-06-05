@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
 
 /**
- * ERP global dashboard. Shows cross-module counters pulled from the stats
- * endpoint so the admin gets a one-glance view of the whole operation.
+ * ERP global dashboard powered by Supabase.
  */
 const METRIC_CARDS = [
     { key: 'totalClientes', label: 'Clientes (CRM)', accent: 'neon-lime' },
@@ -19,12 +18,43 @@ const ErpDashboard = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        apiService.stats.overview()
-            .then((res) => setData(res.data))
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
-    }, []);
+    const loadStats = async () => {
+        setLoading(true);
+        try {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            // Supabase counts and basic selects for sums
+            const [clients, staff, inv, products, orders, sales] = await Promise.all([
+                supabase.from('users').select('*', { count: 'exact', head: true }).eq('type', 'customer'),
+                supabase.from('users').select('*', { count: 'exact', head: true }).eq('type', 'staff').eq('status', 'Activo'),
+                supabase.from('inventory').select('stock_actual, stock_minimo'),
+                supabase.from('products').select('*', { count: 'exact', head: true }),
+                supabase.from('orders').select('*', { count: 'exact', head: true }),
+                supabase.from('orders').select('total').gte('created_at', thirtyDaysAgo.toISOString()).neq('estado', 'Cancelado')
+            ]);
+
+            const totalInventario = inv.data?.reduce((sum, i) => sum + Number(i.stock_actual), 0) || 0;
+            const alertasStock = inv.data?.filter(i => i.stock_actual <= i.stock_minimo).length || 0;
+            const ventasMes = sales.data?.reduce((sum, o) => sum + Number(o.total), 0) || 0;
+
+            setData({
+                totalClientes: clients.count || 0,
+                totalStaff: staff.count || 0,
+                totalInventario,
+                totalProductos: products.count || 0,
+                totalPedidos: orders.count || 0,
+                ventasMes,
+                alertasStock
+            });
+        } catch (err) {
+            toast.error('Error al cargar estadísticas: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => { loadStats(); }, []);
 
     if (loading) {
         return (

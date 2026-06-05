@@ -1,83 +1,123 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiService, setToken, getToken } from '../services/api';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
 /**
- * Authentication provider backed by the Express API.
+ * Authentication provider powered by Supabase.
  *
- * The session is a JWT stored in localStorage. On mount, if a token exists we
- * revalidate it against /me so the app rehydrates with fresh role/permissions
- * (a stale cached user could otherwise show modules it no longer has).
+ * Manages the Supabase Auth session and fetches the corresponding user profile
+ * (including roles and permissions) from the public database schema.
  */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const token = getToken();
-        if (!token) {
-            setLoading(false);
-            return;
+    /**
+     * Fetches the complete profile for a given auth user ID.
+     */
+    const fetchProfile = async (userId) => {
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*, roles(name, permissions)')
+                .eq('id', userId)
+                .maybeSingle(); // Use maybeSingle to avoid 406 error if not found
+
+            if (error) throw error;
+            
+            if (!data) {
+                console.warn('No profile found for user:', userId);
+                return null;
+            }
+
+            return {
+                ...data,
+                permissions: data.roles?.permissions || []
+            };
+        } catch (error) {
+            console.error('Error fetching profile:', error.message);
+            return null;
         }
-        apiService.auth.me()
-            .then((data) => setUser(data.user))
-            .catch(() => {
-                // Token invalid or expired: drop it silently.
-                setToken(null);
+    };
+
+    useEffect(() => {
+        // 1. Check for an existing session on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                fetchProfile(session.user.id).then(setUser);
+            }
+            setLoading(false);
+        });
+
+        // 2. Listen for auth changes (login, logout, token refresh)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (session) {
+                const profile = await fetchProfile(session.user.id);
+                setUser(profile);
+            } else {
                 setUser(null);
-            })
-            .finally(() => setLoading(false));
+            }
+            setLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     /**
-     * Authenticates a user and stores the session token.
-     * @param {string} email
-     * @param {string} password
-     * @returns {Promise<{success: boolean, message?: string}>}
+     * Authenticates a user with email and password.
      */
     const login = async (email, password) => {
         try {
-            const data = await apiService.auth.login(email, password);
-            setToken(data.token);
-            setUser(data.user);
-            return { success: true, user: data.user };
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+            if (error) throw error;
+            
+            const profile = await fetchProfile(data.user.id);
+            setUser(profile);
+            return { success: true, user: profile };
         } catch (error) {
             return { success: false, message: error.message };
         }
     };
 
     /**
-     * Registers a storefront customer and starts a session.
-     * @param {Object} userData - { name|nombre, email, password }
-     * @returns {Promise<{success: boolean, message?: string}>}
+     * Registers a new customer.
+     * Note: The public profile is created automatically by a database trigger.
      */
     const register = async (userData) => {
         try {
-            const data = await apiService.auth.register({
-                nombre: userData.nombre || userData.name,
+            const { data, error } = await supabase.auth.signUp({
                 email: userData.email,
                 password: userData.password,
+                options: {
+                    data: {
+                        name: userData.nombre || userData.name
+                    }
+                }
             });
-            setToken(data.token);
-            setUser(data.user);
-            return { success: true, user: data.user };
+            if (error) throw error;
+            
+            // Wait a moment for the trigger to finish profile creation
+            const profile = await fetchProfile(data.user.id);
+            setUser(profile);
+            return { success: true, user: profile };
         } catch (error) {
             return { success: false, message: error.message };
         }
     };
 
-    const logout = () => {
-        setToken(null);
+    const logout = async () => {
+        await supabase.auth.signOut();
         setUser(null);
     };
 
     /**
      * Checks whether the current user can access a given module.
-     * @param {string} module - Module key (crm | scm | erp).
-     * @returns {boolean}
      */
     const hasModule = (module) => Boolean(user?.permissions?.includes(module));
 

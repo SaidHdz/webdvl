@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import Modal from '../../ui/Modal';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../context/AuthContext';
 
 const EMPTY_FORM = {
-    name: '', email: '', password: '', role_id: '',
+    name: '', email: '', role_id: '',
     puesto: '', departamento: '', status: 'Activo',
 };
 
 /**
- * ERP staff management: create, edit and delete internal accounts and assign a
- * role to each. Search filters by name/email. The current user cannot delete
- * their own account (enforced again on the server).
+ * ERP staff management powered by Supabase.
+ * Manages the "users" (profiles) table and role assignments.
  */
 const StaffManager = () => {
     const { user: currentUser } = useAuth();
@@ -25,27 +24,44 @@ const StaffManager = () => {
     const [form, setForm] = useState(EMPTY_FORM);
     const [saving, setSaving] = useState(false);
 
-    const load = (searchTerm = '') => {
+    const load = async (searchTerm = '') => {
         setLoading(true);
-        Promise.all([
-            apiService.users.list({ type: 'staff', search: searchTerm }),
-            apiService.roles.list(),
-        ])
-            .then(([usersRes, rolesRes]) => {
-                setStaff(usersRes.data);
-                setRoles(rolesRes.data);
-            })
-            .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false));
+        try {
+            // Parallel fetching
+            const [usersRes, rolesRes] = await Promise.all([
+                supabase.from('users').select('*, roles(name)').eq('type', 'staff'),
+                supabase.from('roles').select('*').order('name')
+            ]);
+
+            if (usersRes.error) throw usersRes.error;
+            if (rolesRes.error) throw rolesRes.error;
+
+            let formatted = usersRes.data.map(u => ({
+                ...u,
+                role_name: u.roles?.name
+            }));
+
+            if (searchTerm) {
+                formatted = formatted.filter(u => 
+                    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            setStaff(formatted);
+            setRoles(rolesRes.data);
+        } catch (err) {
+            toast.error('Error al cargar personal: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => { load(); }, []);
 
-    // Debounce the search so we do not hit the API on every keystroke.
     useEffect(() => {
         const handle = setTimeout(() => load(search), 300);
         return () => clearTimeout(handle);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search]);
 
     const openCreate = () => {
@@ -57,7 +73,7 @@ const StaffManager = () => {
     const openEdit = (member) => {
         setEditing(member);
         setForm({
-            name: member.name, email: member.email, password: '',
+            name: member.name, email: member.email,
             role_id: member.role_id || '', puesto: member.puesto || '',
             departamento: member.departamento || '', status: member.status,
         });
@@ -72,16 +88,24 @@ const StaffManager = () => {
         }
         setSaving(true);
         try {
-            const payload = { ...form, role_id: Number(form.role_id) };
-            // Do not send an empty password on edit (keeps the current one).
-            if (editing && !payload.password) delete payload.password;
-
             if (editing) {
-                await apiService.users.update(editing.id, payload);
+                const { error } = await supabase
+                    .from('users')
+                    .update({
+                        name: form.name,
+                        role_id: Number(form.role_id),
+                        puesto: form.puesto,
+                        departamento: form.departamento,
+                        status: form.status
+                    })
+                    .eq('id', editing.id);
+                
+                if (error) throw error;
                 toast.success('Personal actualizado');
             } else {
-                await apiService.users.create(payload);
-                toast.success('Personal registrado');
+                toast.info('Para registrar nuevo personal en Supabase Auth, deben registrarse ellos mismos o usar una Edge Function.');
+                // Here we could at least create the profile if we had the UUID, 
+                // but usually in Supabase we wait for them to Sign Up.
             }
             setModalOpen(false);
             load(search);
@@ -95,8 +119,11 @@ const StaffManager = () => {
     const handleDelete = async (member) => {
         if (!window.confirm(`Eliminar a "${member.name}" del personal?`)) return;
         try {
-            await apiService.users.remove(member.id);
-            toast.success('Personal eliminado');
+            // This only deletes the profile in public.users. 
+            // The Auth user in auth.users requires admin API.
+            const { error } = await supabase.from('users').delete().eq('id', member.id);
+            if (error) throw error;
+            toast.success('Perfil eliminado');
             load(search);
         } catch (err) {
             toast.error(err.message);

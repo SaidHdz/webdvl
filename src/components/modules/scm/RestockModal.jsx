@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import Modal from '../../ui/Modal';
-import { apiService } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../../context/AuthContext';
 
 /**
- * Quick restock from the inventory view. Creates a purchase order to the
- * product's supplier. The primary action also marks it received, simulating the
- * restock so stock goes up immediately; a secondary action just files the order
- * as pending (to be received later from the supplier history).
- *
- * @param {boolean} isOpen
- * @param {() => void} onClose
- * @param {Object} item - Inventory row (id_producto, name, stock_actual, supplier_id, supplier_name).
- * @param {() => void} [onDone]
+ * Quick restock powered by Supabase.
  */
 const RestockModal = ({ isOpen, onClose, item, onDone }) => {
+    const { user } = useAuth();
     const [cantidad, setCantidad] = useState(10);
     const [costo, setCosto] = useState(0);
     const [saving, setSaving] = useState(false);
@@ -28,19 +22,65 @@ const RestockModal = ({ isOpen, onClose, item, onDone }) => {
         if (!qty || qty <= 0) { toast.error('Cantidad invalida'); return; }
         setSaving(true);
         try {
-            await apiService.purchaseOrders.create({
-                supplier_id: item.supplier_id,
-                notas: receive ? 'Reabastecimiento desde inventario' : 'Pedido desde inventario',
-                receive,
-                items: [{ id_producto: item.id_producto, cantidad: qty, costo_unitario: Number(costo) || 0 }],
-            });
+            // 1. Create Purchase Order
+            const total = qty * (Number(costo) || 0);
+            const folio = `OC-${Date.now().toString().slice(-6)}`;
+            
+            const { data: po, error: poError } = await supabase
+                .from('purchase_orders')
+                .insert({
+                    folio,
+                    supplier_id: item.supplier_id,
+                    estado: receive ? 'Recibido' : 'Solicitado',
+                    total,
+                    notas: receive ? 'Reabastecimiento desde inventario' : 'Pedido desde inventario',
+                    created_by: user?.id,
+                    received_at: receive ? new Date().toISOString() : null
+                })
+                .select()
+                .single();
+            
+            if (poError) throw poError;
+
+            // 2. Create PO Items
+            const { error: itemError } = await supabase
+                .from('purchase_order_items')
+                .insert({
+                    purchase_order_id: po.id,
+                    product_id: item.product_id,
+                    sku: item.id_producto,
+                    quantity: qty,
+                    unit_cost: Number(costo) || 0
+                });
+            
+            if (itemError) throw itemError;
+
+            // 3. If "receive now", update inventory
+            if (receive) {
+                const { data: currentInv } = await supabase
+                    .from('inventory')
+                    .select('stock_actual')
+                    .eq('product_id', item.product_id)
+                    .single();
+                
+                if (currentInv) {
+                    await supabase
+                        .from('inventory')
+                        .update({ 
+                            stock_actual: currentInv.stock_actual + qty,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('product_id', item.product_id);
+                }
+            }
+
             toast.success(receive
                 ? `Reabastecido: +${qty} de ${item.name}`
                 : `Pedido creado para ${item.name}`);
             onClose();
             onDone?.();
         } catch (err) {
-            toast.error(err.message);
+            toast.error('Error al procesar: ' + err.message);
         } finally {
             setSaving(false);
         }

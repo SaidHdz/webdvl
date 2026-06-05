@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { checkoutSchema } from '../schemas/validation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { apiService } from '../services/api';
+import { supabase } from '../lib/supabase';
 
 const Checkout = ({ onBack, onSuccess }) => {
   const { cart, cartTotal, clearCart } = useCart();
@@ -36,32 +36,73 @@ const Checkout = ({ onBack, onSuccess }) => {
     }
     setLoading(true);
 
-    const isNacional = data.metodoEnvio === 'nacional';
-    const payload = {
-      // Structured items; prices and totals are recomputed server-side.
-      items: cart.map((item) => ({ id_producto: item.id_producto, cantidad: item.quantity || 1 })),
-      tipo_envio: isNacional ? 'Nacional' : 'Local',
-      nombre: data.nombreCompleto,
-      telefono: data.telefono,
-      direccion: isNacional ? `${data.calle}, ${data.colonia}, ${data.ciudad}, CP: ${data.cp}` : null,
-      punto_entrega: isNacional ? null : data.puntoEntrega,
-    };
-
     try {
-      const res = await apiService.orders.create(payload);
-      toast.success(`Pedido ${res.data.id_pedido} registrado con exito`);
+      // 1. Stock Validation
+      for (const item of cart) {
+        const { data: inv, error: invError } = await supabase
+          .from('inventory')
+          .select('stock_actual')
+          .eq('product_id', item.id)
+          .single();
+        
+        if (invError || !inv || inv.stock_actual < (item.quantity || 1)) {
+          throw new Error(`Stock insuficiente para ${item.name}`);
+        }
+      }
+
+      // 2. Create Order
+      const isNacional = data.metodoEnvio === 'nacional';
+      const shippingCost = isNacional ? 150 : 0;
+      const orderNumber = `ORD-${Date.now().toString().slice(-4)}`;
+      
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          id_pedido: orderNumber,
+          user_id: user?.id || null,
+          id_cliente: user?.email || 'guest',
+          nombre: data.nombreCompleto,
+          telefono: data.telefono,
+          total: cartTotal + shippingCost,
+          estado: 'Pendiente',
+          tipo_envio: isNacional ? 'Nacional' : 'Local',
+          direccion: isNacional ? `${data.calle}, ${data.colonia}, ${data.ciudad}, CP: ${data.cp}` : null,
+          punto_entrega: isNacional ? null : data.puntoEntrega,
+        })
+        .select()
+        .single();
+      
+      if (orderError) throw orderError;
+
+      // 3. Create Order Items and Update Inventory
+      for (const item of cart) {
+        // Add item
+        const { error: itemError } = await supabase
+          .from('order_items')
+          .insert({
+            order_id: order.id,
+            product_id: item.id,
+            id_producto: item.id_producto,
+            cantidad: item.quantity || 1,
+            precio_unitario: item.price
+          });
+        if (itemError) throw itemError;
+
+        // Decrease stock
+        const { data: curInv } = await supabase.from('inventory').select('stock_actual').eq('product_id', item.id).single();
+        const { error: updError } = await supabase
+          .from('inventory')
+          .update({ stock_actual: curInv.stock_actual - (item.quantity || 1) })
+          .eq('product_id', item.id);
+        if (updError) throw updError;
+      }
+
+      toast.success(`Pedido ${orderNumber} registrado con exito`);
       clearCart();
       onSuccess();
     } catch (error) {
-      // On insufficient stock the API returns the offending products so we can
-      // tell the customer exactly what to adjust.
-      const insufficient = error.data?.insufficient;
-      if (insufficient?.length) {
-        const detail = insufficient.map((p) => `${p.name} (disponibles: ${p.disponible})`).join(', ');
-        toast.error(`Stock insuficiente: ${detail}`);
-      } else {
-        toast.error(error.message || 'No se pudo procesar el pedido');
-      }
+      console.error(error);
+      toast.error(error.message || 'No se pudo procesar el pedido');
     } finally {
       setLoading(false);
     }
