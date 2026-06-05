@@ -40,7 +40,7 @@ const Hero = ({ onExploreClick }) => {
             CREADO POR MÍ, PARA LOS QUE BUSCAN ROZAR MI FLOW.
           </p>
           <p className="text-white/20 text-[10px] md:text-xs font-black uppercase tracking-[0.6em] pt-2">
-            DROP 01 — BY DIAVLO
+            DROP 01 — POR DIAVLO
           </p>
         </div>
 

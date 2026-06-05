@@ -66,7 +66,7 @@ const LoginForm = ({ onToggleMode, onSuccess }) => {
           disabled={isLoading}
           className={`group relative w-full overflow-hidden rounded-2xl bg-white py-5 font-black text-xs tracking-[4px] transition-all duration-500 mt-4 ${isLoading ? 'opacity-50' : 'hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]'}`}
         >
-          <span className="relative z-10 text-black uppercase">{isLoading ? 'Verificando...' : 'Acceder'}</span>
+          <span className="relative z-10 text-black uppercase">{isLoading ? 'Verificando...' : 'Iniciar Sesión'}</span>
         </button>
       </form>
 

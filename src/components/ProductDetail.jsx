@@ -27,7 +27,7 @@ const ProductDetail = ({ product, onBack }) => {
     const isGreen = name.includes('flowers');
     const isRed = (name.includes('devil') && !name.includes('beanie')) || name.includes('voodoo') || name.includes('diavloo') || name.includes('see you');
 
-    if (isPurple) return { accent: '#66278b', glow: 'rgba(102, 39, 139, 0.6)' };
+    if (isPurple) return { accent: '#a855f7', glow: 'rgba(168, 85, 247, 0.6)' };
     if (isYellow) return { accent: '#f1d069', glow: 'rgba(241, 208, 105, 0.6)' };
     if (isGreen) return { accent: '#32a83e', glow: 'rgba(50, 168, 62, 0.6)' };
     if (isRed) return { accent: '#bf4a4a', glow: 'rgba(191, 74, 74, 0.6)' };
@@ -52,8 +52,13 @@ const ProductDetail = ({ product, onBack }) => {
 
   const handleAddToCart = async () => {
     btnControls.start({ scale: [1, 0.85, 1.15, 1], transition: { duration: 0.4, ease: "backOut" } });
-    addToCart(product, selectedSize, selectedColor, imagesList[currentImageIndex]);
-    toast.success(`${product.name} añadida al carrito`, { description: `Talla ${selectedSize} — Color ${selectedColor}` });
+    addToCart({
+        ...product,
+        size: selectedSize,
+        color: selectedColor,
+        image: imagesList[currentImageIndex]
+    });
+    toast.success('Agregado al flow', { description: `${product.name} — Talla ${selectedSize}` });
   };
 
   return (

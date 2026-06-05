@@ -12,21 +12,21 @@ const MODULES = [
         key: 'crm',
         path: '/crm',
         title: 'CRM',
-        subtitle: 'Customer Relationship',
+        subtitle: 'Gestión de Relaciones con Clientes',
         description: 'Clientes, historial de compra y analitica de ventas.',
     },
     {
         key: 'scm',
         path: '/scm',
         title: 'SCM',
-        subtitle: 'Supply Chain',
+        subtitle: 'Gestión de Cadena de Suministro',
         description: 'Inventario, proveedores, mensajes y logistica de envios.',
     },
     {
         key: 'erp',
         path: '/erp',
         title: 'ERP',
-        subtitle: 'Enterprise Resource',
+        subtitle: 'Planificación de Recursos Empresariales',
         description: 'Personal, roles y permisos, y vista global del sistema.',
     },
 ];
@@ -43,7 +43,7 @@ const ModuleHub = () => {
                     {user?.name}
                 </h1>
                 <p className="text-text-muted text-xs font-bold uppercase tracking-[3px] mt-3">
-                    {user?.role || 'Cliente'} — Selecciona un modulo
+                    {user?.role || 'Cliente'} — Selecciona un módulo
                 </p>
             </header>
 
@@ -97,7 +97,7 @@ const ModuleHub = () => {
                     onClick={logout}
                     className="text-[10px] font-black uppercase tracking-[3px] text-red-500/60 hover:text-red-500 border border-red-500/20 hover:border-red-500 px-6 py-3 rounded-full transition-all"
                 >
-                    Cerrar Sesion
+                    Cerrar Sesión
                 </button>
             </div>
         </div>

@@ -88,7 +88,7 @@ const RegisterForm = ({ onToggleMode, onSuccess }) => {
           disabled={isLoading}
           className={`group relative w-full overflow-hidden rounded-2xl bg-white py-5 font-black text-xs tracking-[4px] transition-all duration-500 mt-4 ${isLoading ? 'opacity-50' : 'hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]'}`}
         >
-          <span className="relative z-10 text-black uppercase">{isLoading ? 'Procesando...' : 'Crear Registro'}</span>
+          <span className="relative z-10 text-black uppercase">{isLoading ? 'Procesando...' : 'Registrarse'}</span>
         </button>
       </form>
 
@@ -98,7 +98,7 @@ const RegisterForm = ({ onToggleMode, onSuccess }) => {
           onClick={onToggleMode}
           className="text-white/40 text-[9px] font-black uppercase tracking-[3px] hover:text-white transition-colors"
         >
-          Ya soy Miembro — Acceder
+          Ya soy Miembro — Iniciar Sesión
         </button>
       </div>
     </div>

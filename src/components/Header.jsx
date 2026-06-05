@@ -12,7 +12,6 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
   const navigate = useNavigate();
   const controls = useAnimation();
 
-  // Trigger pop animation when cartCount changes
   useEffect(() => {
     if (cartCount > 0) {
       controls.start({
@@ -36,7 +35,7 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
             <img 
                 src={logo} 
                 alt="DVL Supply" 
-                className="h-10 lg:h-12 w-auto transition-all duration-500 group-hover:scale-105" 
+                className="h-12 sm:h-10 lg:h-12 w-auto transition-all duration-500 group-hover:scale-105" 
             />
         </div>
 
@@ -55,7 +54,6 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2 lg:gap-6 flex-1 justify-end">
-        {/* Login/Staff Section */}
         {!isAuthenticated ? (
           <button 
             onClick={() => navigate('/login')}
@@ -65,30 +63,33 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
             Acceder
           </button>
         ) : (
-          <div className="hidden sm:flex items-center gap-6">
+          <div className="hidden sm:flex items-center gap-4">
+             {/* Unified Profile Button (Desktop) */}
              <button 
                 onClick={() => navigate('/profile')}
-                className="flex flex-col items-end text-right group"
+                className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2 rounded-full transition-all group"
              >
-                <span className="text-[8px] text-white/30 uppercase font-black tracking-widest leading-none group-hover:text-accent transition-colors">Mi Perfil</span>
-                <span className="text-[10px] text-white font-black uppercase tracking-tight">{user.name.split(' ')[0]}</span>
+                <div className="w-6 h-6 bg-[#bf4a4a] rounded-full flex items-center justify-center text-[10px] font-black text-black shadow-[0_0_15px_rgba(191,74,74,0.3)]">
+                    {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-[10px] text-white font-black uppercase tracking-widest">{user.name.split(' ')[0]}</span>
              </button>
+
              <button 
                 onClick={logout}
-                className="text-[9px] font-black uppercase tracking-[1px] text-white/20 hover:text-red-500 transition-all border border-white/10 hover:border-red-500 px-3 py-1 rounded-full"
+                className="text-[9px] font-black uppercase tracking-[1px] text-white/20 hover:text-red-500 transition-all border border-white/10 hover:border-red-500 px-4 py-2 rounded-full"
              >
                 Salir
              </button>
           </div>
         )}
 
-        {/* Quick access to the module hub for staff accounts */}
         {isAuthenticated && isStaff && (
           <button
             onClick={onAdminClick}
             className="hidden md:block text-[9px] font-black uppercase tracking-[2px] bg-white text-black border border-white hover:bg-transparent hover:text-white px-4 py-2 rounded-full transition-all shadow-xl"
           >
-            Modulos
+            Módulos
           </button>
         )}
 
@@ -101,8 +102,6 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
                 <svg 
                     width="18" 
                     height="18" 
-                    lg:width="20" 
-                    lg:height="20" 
                     viewBox="0 0 24 24" 
                     fill="none" 
                     stroke="currentColor" 
@@ -114,7 +113,7 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
                     <path d="M16 10a4 4 0 01-8 0"></path>
                 </svg>
                 {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 lg:-top-1 lg:-right-1 bg-white text-black text-[8px] font-black w-3.5 h-3.5 flex items-center justify-center rounded-full border border-black/20 shadow-lg">
+                    <span className="absolute top-0 right-0 bg-white text-black text-[8px] font-black w-3.5 h-3.5 flex items-center justify-center rounded-full border border-black/20 shadow-lg">
                     {cartCount}
                     </span>
                 )}

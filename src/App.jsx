@@ -125,7 +125,7 @@ function App() {
                 color: '#fff' 
             },
             classNames: {
-                success: '!text-[#66278b]',
+                success: '!text-[#a855f7]',
                 error: '!text-[#ff4444]',
             }
         }}
@@ -216,7 +216,7 @@ function App() {
                         className="pt-32 px-4 max-w-7xl mx-auto min-h-screen"
                     >
                         <ProtectedRoute>
-                            <Profile />
+                            <Profile onBack={() => navigate('/')} />
                         </ProtectedRoute>
                     </motion.div>
                 } />

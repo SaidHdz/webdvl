@@ -4,10 +4,12 @@ import { useAuth } from '../context/AuthContext';
 
 /**
  * Navigation Menu (Sidebar) for mobile and quick access.
- * Follows the premium design language with white accents.
+ * Features a distinct Account Zone with branded avatar.
  */
+import logo from '../assets/logo_dvl.png';
+
 const NavMenu = ({ isOpen, onClose, onScrollToCollection }) => {
-  const { isAuthenticated, isStaff, logout } = useAuth();
+  const { user, isAuthenticated, isStaff, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleAction = (category = 'Todas') => {
@@ -37,41 +39,69 @@ const NavMenu = ({ isOpen, onClose, onScrollToCollection }) => {
 
       {/* Sidebar Menu */}
       <aside 
-        className={`fixed top-0 left-0 w-full max-w-[350px] h-full bg-[#0a0a0a] z-[300] border-r border-white/5 shadow-[20px_0_50px_rgba(0,0,0,0.5)] transition-transform duration-700 ease-in-out flex flex-col p-12 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed top-0 left-0 w-full max-w-[350px] h-full bg-[#0a0a0a] z-[300] border-r border-white/5 shadow-[20px_0_50px_rgba(0,0,0,0.5)] transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col p-12 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="flex justify-between items-center mb-16">
-          <h2 className="font-syne text-4xl font-black text-white tracking-tighter">DVL</h2>
+          <img src={logo} alt="DVL Supply" className="h-10 w-auto object-contain" />
           <button onClick={onClose} className="text-white/20 hover:text-white transition-all">
-            <span className="text-3xl">✕</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
 
         <nav className="flex-grow flex flex-col gap-10">
-          {navLinks.map((link) => (
-            <button 
-              key={link.label}
-              onClick={() => handleAction(link.filter)}
-              className="group flex flex-col items-start gap-1 text-4xl font-black uppercase tracking-tighter text-white/20 hover:text-white transition-all w-full text-left"
-            >
-              <span className="text-[10px] uppercase font-black tracking-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-500">Explorar</span>
-              {link.label}
-            </button>
-          ))}
+          <div className="space-y-10">
+            {navLinks.map((link) => (
+              <button 
+                key={link.label}
+                onClick={() => handleAction(link.filter)}
+                className="group flex flex-col items-start gap-1 text-4xl font-black uppercase tracking-tighter text-white/20 hover:text-white transition-all w-full text-left"
+              >
+                <span className="text-[10px] uppercase font-black tracking-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 text-white/40">Explorar</span>
+                {link.label}
+              </button>
+            ))}
+          </div>
 
-          <div className="pt-10 space-y-6">
-            <p className="text-[10px] uppercase font-black text-white/10 tracking-[4px]">Cuenta</p>
+          {/* Account Zone - Differentiated Background */}
+          <div className="mt-10 pt-10 border-t border-white/5 space-y-8">
+            <p className="text-[10px] uppercase font-black text-white/10 tracking-[4px]">Mi Cuenta</p>
+            
             {!isAuthenticated ? (
                 <div className="flex flex-col gap-4 items-start">
-                    <button onClick={() => { navigate('/login'); onClose(); }} className="text-white font-bold text-sm hover:text-accent transition-colors tracking-widest uppercase">Acceder</button>
-                    <button onClick={() => { navigate('/register'); onClose(); }} className="text-white font-bold text-sm hover:text-accent transition-colors tracking-widest uppercase">Registro</button>
+                    <button onClick={() => { navigate('/login'); onClose(); }} className="text-white font-black text-sm hover:text-[#bf4a4a] transition-colors tracking-widest uppercase">Iniciar Sesión</button>
+                    <button onClick={() => { navigate('/register'); onClose(); }} className="text-white font-black text-sm hover:text-[#bf4a4a] transition-colors tracking-widest uppercase">Registro</button>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4 items-start">
-                    {isStaff && <button onClick={() => { navigate('/hub'); onClose(); }} className="text-accent font-black text-sm tracking-widest uppercase">Panel Admin</button>}
-                    <button onClick={handleLogout} className="text-red-500/60 hover:text-red-500 font-bold text-sm transition-colors tracking-widest uppercase">Cerrar Sesión</button>
+                <div className="space-y-6">
+                    {/* Branded Avatar Section */}
+                    <button 
+                        onClick={() => { navigate('/profile'); onClose(); }} 
+                        className="w-full flex items-center gap-5 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group transition-all hover:bg-white/[0.05] hover:border-white/10"
+                    >
+                        <div className="w-12 h-12 bg-[#bf4a4a] rounded-xl flex items-center justify-center text-xl font-syne font-black text-black shadow-[0_0_20px_rgba(191,74,74,0.2)] transform group-hover:rotate-3 transition-transform">
+                            {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex flex-col items-start min-w-0">
+                            <span className="text-white font-black text-lg tracking-tight uppercase truncate">{user.name.split(' ')[0]}</span>
+                            <span className="text-[9px] text-[#bf4a4a] font-black uppercase tracking-[3px]">Ver Mi Perfil</span>
+                        </div>
+                    </button>
+                    
+                    <div className="flex flex-col gap-4 items-start pl-4">
+                        {isStaff && (
+                            <button 
+                                onClick={() => { navigate('/hub'); onClose(); }} 
+                                className="text-[#a855f7] font-black text-[10px] tracking-[4px] uppercase hover:text-white transition-colors"
+                            >
+                                Panel de Módulos
+                            </button>
+                        )}
+                        <button onClick={handleLogout} className="text-red-500/40 hover:text-red-500 font-black text-[10px] transition-colors tracking-[4px] uppercase">Cerrar Sesión</button>
+                    </div>
                 </div>
             )}
           </div>
+
         </nav>
 
         <div className="mt-auto pt-10 border-t border-white/5">
