@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 
 /**
@@ -7,10 +8,22 @@ import Footer from './Footer';
  * Features a bento grid layout and aggressive brand storytelling.
  */
 const AboutUs = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen bg-[#050505] flex flex-col">
             <main className="flex-grow pt-40 px-6 lg:px-12 max-w-7xl mx-auto w-full space-y-32 mb-40">
                 
+                {/* Navigation & Exit */}
+                <div className="flex justify-between items-center -mt-20 mb-20">
+                    <button 
+                        onClick={() => navigate('/')}
+                        className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[4px] text-white/30 hover:text-white transition-all"
+                    >
+                        <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> Volver al Hub
+                    </button>
+                </div>
+
                 {/* 1. HERO: THE BIG QUESTION */}
                 <section className="space-y-10 text-center lg:text-left">
                     <motion.h1 

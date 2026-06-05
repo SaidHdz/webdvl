@@ -1,11 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 
 /**
  * FAQ & Legal Policies for DVL Supply Co.
  */
 const FAQ = () => {
+    const navigate = useNavigate();
     const faqs = [
         {
             q: "¿CUÁNTO TARDA EN LLEGAR MI ENVÍO NACIONAL?",
@@ -28,6 +30,17 @@ const FAQ = () => {
     return (
         <div className="min-h-screen bg-[#050505] flex flex-col">
             <main className="flex-grow pt-40 px-6 lg:px-12 max-w-4xl mx-auto w-full space-y-24 mb-40">
+                
+                {/* Navigation & Exit */}
+                <div className="flex justify-between items-center -mt-20 mb-20">
+                    <button 
+                        onClick={() => navigate('/')}
+                        className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[4px] text-white/30 hover:text-white transition-all"
+                    >
+                        <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> Volver al Hub
+                    </button>
+                </div>
+
                 <section className="space-y-6">
                     <h1 className="text-5xl lg:text-7xl font-syne font-black uppercase tracking-[-0.04em] leading-[0.85] text-white text-center">
                         PREGUNTAS <br />
