@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import logo from '../assets/logo_dvl.png';
 
 const Footer = () => {
+  const navigate = useNavigate();
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5 pt-20 pb-10 px-8 mt-20">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-32 mb-20">
@@ -19,7 +21,34 @@ const Footer = () => {
         </div>
 
         {/* Links & Social */}
-        <div className="space-y-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-12">
+          <div className="space-y-4">
+            <h3 className="text-[10px] font-black uppercase tracking-[4px] text-white/20">Compañía</h3>
+            <div className="flex flex-col gap-4">
+                <button 
+                    onClick={() => { window.scrollTo({ top: 0 }); navigate('/about'); }}
+                    className="text-white hover:text-accent transition-all font-bold text-sm text-left flex items-center gap-2 group"
+                >
+                    Quienes Somos
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </button>
+                <button 
+                    onClick={() => { window.scrollTo({ top: 0 }); navigate('/faq'); }}
+                    className="text-white hover:text-accent transition-all font-bold text-sm text-left flex items-center gap-2 group"
+                >
+                    FAQs
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </button>
+                <button 
+                    onClick={() => { window.scrollTo({ top: 0 }); navigate('/faq'); }}
+                    className="text-white hover:text-accent transition-all font-bold text-sm text-left flex items-center gap-2 group"
+                >
+                    Devoluciones
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </button>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <h3 className="text-[10px] font-black uppercase tracking-[4px] text-white/20">Social</h3>
             <div className="flex flex-col gap-4">

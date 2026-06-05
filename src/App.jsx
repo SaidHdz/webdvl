@@ -13,6 +13,8 @@ import Checkout from './components/Checkout';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Profile from './components/Profile';
+import AboutUs from './components/AboutUs';
+import FAQ from './components/FAQ';
 import ProtectedRoute from './components/ProtectedRoute';
 import ModuleHub from './components/ModuleHub';
 import CrmModule from './components/modules/CrmModule';
@@ -218,6 +220,28 @@ function App() {
                         <ProtectedRoute>
                             <Profile onBack={() => navigate('/')} />
                         </ProtectedRoute>
+                    </motion.div>
+                } />
+
+                <Route path="/about" element={
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <AboutUs />
+                    </motion.div>
+                } />
+
+                <Route path="/faq" element={
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <FAQ />
                     </motion.div>
                 } />
 
