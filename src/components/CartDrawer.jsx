@@ -205,15 +205,14 @@ const CartDrawer = ({ isOpen, onClose, onCheckout, onScrollToCollection }) => {
           </div>
           
           <button 
-            onClick={onCheckout}
-            disabled={cart.length === 0}
-            className={`group relative w-full rounded-2xl py-6 overflow-hidden transition-all duration-700 ${cart.length === 0 ? 'bg-white/5 text-white/10 cursor-not-allowed border border-white/5' : 'bg-white text-black hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] active:scale-95'}`}
+            onClick={() => {
+                toast.info('Ventas no disponibles', {
+                    description: 'El sistema de pagos se activará el 30 de septiembre.'
+                });
+            }}
+            className="group relative w-full rounded-2xl py-6 overflow-hidden transition-all duration-700 bg-white/5 text-white/20 cursor-help border border-white/5"
           >
-            {/* Pulsing Button Glow */}
-            {!cart.length === 0 && (
-                <div className="absolute inset-0 bg-[#a855f7]/0 group-hover:bg-[#a855f7]/10 transition-colors duration-500" />
-            )}
-            <span className="relative z-10 font-syne font-black text-sm uppercase tracking-[5px]">Check out</span>
+            <span className="relative z-10 font-syne font-black text-sm uppercase tracking-[5px]">Espera al Lanzamiento</span>
           </button>
 
           <p className="text-center text-[8px] font-bold text-white/10 uppercase tracking-[3px]">

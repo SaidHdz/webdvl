@@ -40,29 +40,9 @@ const ProductCard = ({ product, onClick }) => {
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
-    if (soldOut) return;
-    
-    // Quick-add defaults (Using data keys: 'white', 'black')
-    const defaultSize = product.category === 'Gorro' ? 'Unitalla' : 'M';
-    const defaultColor = 'white';
-    
-    // Resolve image path correctly from the nested structure
-    const resolvedImage = product.images?.[defaultColor]?.[0] || 
-                          product.images?.white?.[0] || 
-                          product.images?.black?.[0] || 
-                          mainImage;
-
-    // Passing the FULL object including images for the inline editor
-    addToCart({
-      ...product,
-      size: defaultSize,
-      color: defaultColor,
-      image: resolvedImage
-    });
-
-    toast.success('Agregado al flow', {
-        description: `${product.name} — Talla ${defaultSize}`,
-        icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+    toast.info('Próximamente disponible', {
+        description: 'Mantente atento al lanzamiento del DROP 01.',
+        icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
     });
   };
 
@@ -170,17 +150,17 @@ const ProductCard = ({ product, onClick }) => {
              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">MXN</span>
           </div>
 
-          {/* Technical ADD Button - Full width on mobile */}
+          {/* Technical ADD Button - Disabled for showcase */}
           <div 
             onClick={handleQuickAdd}
-            className={`group/add w-full sm:w-12 h-14 sm:h-12 rounded-2xl sm:rounded-xl flex items-center justify-center border border-white/10 relative overflow-hidden transition-all duration-500 ${soldOut ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-[var(--accent-color)] group-hover:scale-[1.02] sm:group-hover:scale-110 group-hover:-translate-y-1'}`}
+            className={`group/add w-full sm:w-12 h-14 sm:h-12 rounded-2xl sm:rounded-xl flex items-center justify-center border border-white/5 relative overflow-hidden transition-all duration-500 cursor-help opacity-40`}
           >
-            {/* Hover Fill Effect */}
-            <div className="absolute inset-0 bg-[var(--accent-color)] translate-y-full group-hover/add:translate-y-0 transition-transform duration-500 ease-expo" />
+            {/* Hover Fill Effect (Subtle) */}
+            <div className="absolute inset-0 bg-white/5 translate-y-full group-hover/add:translate-y-0 transition-transform duration-500 ease-expo" />
             
             {/* Mobile: Label + Icon | Desktop: Icon only */}
             <div className="relative z-10 flex items-center gap-3">
-                <span className="sm:hidden font-syne font-black text-[11px] uppercase tracking-[3px] text-white group-hover/add:text-black transition-colors">Añadir al Carrito</span>
+                <span className="sm:hidden font-syne font-black text-[11px] uppercase tracking-[3px] text-white/60">Espera al Drop</span>
                 <svg 
                     width="20" 
                     height="20" 
@@ -188,10 +168,9 @@ const ProductCard = ({ product, onClick }) => {
                     fill="none" 
                     stroke="currentColor" 
                     strokeWidth="2.5" 
-                    className="text-white group-hover/add:text-black transition-colors duration-300"
+                    className="text-white/40"
                 >
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
           </div>

@@ -52,14 +52,10 @@ const ProductDetail = ({ product, onBack }) => {
   };
 
   const handleAddToCart = async () => {
-    btnControls.start({ scale: [1, 0.85, 1.15, 1], transition: { duration: 0.4, ease: "backOut" } });
-    addToCart({
-        ...product,
-        size: selectedSize,
-        color: selectedColor,
-        image: imagesList[currentImageIndex]
+    toast.info('Lanzamiento Próximo', {
+        description: 'Esta pieza estará disponible el 30 de septiembre.',
+        icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
     });
-    toast.success('Agregado al flow', { description: `${product.name} — Talla ${selectedSize}` });
   };
 
   return (
@@ -182,8 +178,8 @@ const ProductDetail = ({ product, onBack }) => {
                             </div>
                         </div>
 
-                        <motion.button animate={btnControls} onClick={handleAddToCart} disabled={soldOut} className={`w-full mt-8 py-5 rounded-[20px] font-black uppercase tracking-[4px] text-[11px] transition-all duration-500 ${soldOut ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white text-black hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95'}`}>
-                            {soldOut ? 'Agotado' : 'Añadir al Carrito'}
+                        <motion.button animate={btnControls} onClick={handleAddToCart} className={`w-full mt-8 py-5 rounded-[20px] font-black uppercase tracking-[4px] text-[11px] transition-all duration-500 bg-white/5 text-white/20 cursor-help`}>
+                            Espera al Drop
                         </motion.button>
                     </div>
                 </div>
