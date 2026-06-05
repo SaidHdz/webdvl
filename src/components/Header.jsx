@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
+import logo from '../assets/logo_dvl.png';
+
 const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, onScrollToTop }) => {
   const { cartCount } = useCart();
   const { user, isAuthenticated, isStaff } = useAuth();
@@ -31,9 +33,11 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
       {/* Left: Logo & Menu */}
       <div className="flex items-center gap-4 lg:gap-8 flex-1">
         <div className="flex items-center cursor-pointer group" onClick={onScrollToTop}>
-            <h1 className="font-syne text-2xl lg:text-3xl font-black tracking-[-0.05em] text-white transition-all duration-500 group-hover:tracking-tighter">
-            DVL
-            </h1>
+            <img 
+                src={logo} 
+                alt="DVL Supply" 
+                className="h-10 lg:h-12 w-auto transition-all duration-500 group-hover:scale-105" 
+            />
         </div>
 
         <nav className="hidden lg:flex items-center gap-8 ml-8">
@@ -61,11 +65,20 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, 
             Acceder
           </button>
         ) : (
-          <div className="hidden sm:flex items-center gap-4">
-             <div className="flex flex-col items-end text-right">
-                <span className="text-[8px] text-white/30 uppercase font-black tracking-widest leading-none">Miembro</span>
+          <div className="hidden sm:flex items-center gap-6">
+             <button 
+                onClick={() => navigate('/profile')}
+                className="flex flex-col items-end text-right group"
+             >
+                <span className="text-[8px] text-white/30 uppercase font-black tracking-widest leading-none group-hover:text-accent transition-colors">Mi Perfil</span>
                 <span className="text-[10px] text-white font-black uppercase tracking-tight">{user.name.split(' ')[0]}</span>
-             </div>
+             </button>
+             <button 
+                onClick={logout}
+                className="text-[9px] font-black uppercase tracking-[1px] text-white/20 hover:text-red-500 transition-all border border-white/10 hover:border-red-500 px-3 py-1 rounded-full"
+             >
+                Salir
+             </button>
           </div>
         )}
 
