@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
@@ -192,8 +192,5 @@ const Profile = () => {
         </div>
     );
 };
-
-// Add missing useMemo import
-import { useMemo } from 'react';
 
 export default Profile;

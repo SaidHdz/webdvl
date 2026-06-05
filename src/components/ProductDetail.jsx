@@ -14,7 +14,6 @@ const ProductDetail = ({ product, onBack }) => {
   
   const btnControls = useAnimation();
 
-  // Reactive resize check for gradient positioning
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
@@ -68,20 +67,21 @@ const ProductDetail = ({ product, onBack }) => {
       </nav>
 
       {/* 2. LAYER: SCROLLABLE CONTAINER */}
-      <div className="flex-grow overflow-y-auto overflow-x-hidden custom-scrollbar relative z-10">
-        <div className="flex flex-col lg:flex-row min-h-screen relative">
-            
-            {/* Product Section: More top padding on mobile to separate from back button */}
-            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-48 lg:pt-24 shrink-0">
-                
-                {/* Dynamic Background Glow - Increased radius and opacity for more presence */}
-                <div 
-                    className="absolute inset-0 z-0 transition-all duration-1000 pointer-events-none opacity-90"
-                    style={{ 
-                        background: `radial-gradient(circle at ${isMobile ? '50% 45%' : '50% 50%'}, ${theme.glow} 0%, transparent 85%)`
-                    }}
-                />
+      <div className="flex-grow overflow-y-auto lg:overflow-hidden overflow-x-hidden custom-scrollbar relative z-10 pb-32 lg:pb-0">
+        
+        {/* Full-Page Dynamic Background Glow - Spans the entire scrollable area */}
+        <div 
+            className="absolute inset-0 z-0 transition-all duration-1000 pointer-events-none opacity-100"
+            style={{ 
+                background: `radial-gradient(circle at ${isMobile ? '50% 30%' : '30% 50%'}, ${theme.glow} 0%, transparent 85%)`,
+                minHeight: '100%'
+            }}
+        />
 
+        <div className="flex flex-col lg:flex-row h-auto lg:h-screen relative z-10">
+            
+            {/* Product Section */}
+            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-48 lg:pt-0 shrink-0 overflow-hidden">
                 {/* Main Product Image */}
                 <div className={`relative z-10 w-full h-[40vh] lg:h-full lg:max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
                     <img src={imagesList[currentImageIndex]} alt={product.name} className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
@@ -97,9 +97,8 @@ const ProductDetail = ({ product, onBack }) => {
             </div>
 
             {/* Information Card Section */}
-            <div className="flex-1 flex items-start lg:items-center justify-center p-6 lg:p-12 z-20 pb-32 lg:pb-12">
+            <div className="flex-1 flex items-start lg:items-center justify-center p-6 lg:p-12 z-20 pb-12">
                 <div className="max-w-md w-full bg-white/[0.04] backdrop-blur-3xl border border-white/10 p-8 lg:p-11 rounded-[40px] lg:rounded-[48px] shadow-2xl animate-slide-up relative">
-                    
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
                             <span className="text-[9px] font-black uppercase tracking-[3px] text-white/30">{product.category}</span>

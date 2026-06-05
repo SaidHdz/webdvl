@@ -8,7 +8,7 @@ import logo from '../assets/logo_dvl.png';
 
 const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, onScrollToTop }) => {
   const { cartCount } = useCart();
-  const { user, isAuthenticated, isStaff } = useAuth();
+  const { user, isAuthenticated, isStaff, logout } = useAuth();
   const navigate = useNavigate();
   const controls = useAnimation();
 

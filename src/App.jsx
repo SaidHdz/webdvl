@@ -168,10 +168,8 @@ function App() {
                         animate={{ opacity: 1 }} 
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="pt-24 px-4 max-w-7xl mx-auto min-h-screen"
                     >
                         <ProductDetailWrapper onBackToCollection={() => scrollToCollection()} />
-                        <Footer />
                     </motion.div>
                 } />
 
