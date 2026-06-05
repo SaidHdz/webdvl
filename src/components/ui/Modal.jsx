@@ -23,7 +23,7 @@ const Modal = ({ isOpen, onClose, title, subtitle, children, footer }) => {
                 className="bg-dark-card border border-white/10 w-full max-w-2xl rounded-[40px] p-10 relative animate-slide-up shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[90vh] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="absolute top-0 right-0 w-64 h-64 bg-neon-lime/5 blur-3xl -mr-32 -mt-32 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
                 <button
                     onClick={onClose}
@@ -37,7 +37,7 @@ const Modal = ({ isOpen, onClose, title, subtitle, children, footer }) => {
                     button's hit area. */}
                 <header className="mb-8 border-b border-white/5 pb-6 pr-16 relative z-10">
                     {subtitle && (
-                        <p className="text-[10px] font-black uppercase tracking-[4px] text-neon-lime mb-2">{subtitle}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[4px] text-white/40 mb-2">{subtitle}</p>
                     )}
                     <h2 className="text-3xl font-black uppercase tracking-tighter text-white">{title}</h2>
                 </header>

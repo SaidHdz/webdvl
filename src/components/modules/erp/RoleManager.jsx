@@ -109,7 +109,7 @@ const RoleManager = () => {
 
     return (
         <div className="bg-dark-card text-white rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-neon-lime/5 rounded-full blur-3xl -mr-32 -mt-32" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32" />
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-white/5 pb-8 relative z-10 gap-4">
                 <div>
@@ -118,7 +118,7 @@ const RoleManager = () => {
                 </div>
                 <button
                     onClick={openCreate}
-                    className="bg-neon-lime text-dark-card font-black px-8 py-4 rounded-full text-[10px] uppercase tracking-[2px] hover:scale-105 transition-all shadow-[0_0_30px_rgba(219,255,0,0.2)]"
+                    className="bg-white text-black font-black px-8 py-4 rounded-full text-[10px] uppercase tracking-[2px] hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)]"
                 >
                     + Crear Rol
                 </button>
@@ -126,7 +126,7 @@ const RoleManager = () => {
 
             {loading ? (
                 <div className="py-20 flex justify-center">
-                    <div className="w-10 h-10 border-4 border-white/5 border-t-neon-lime rounded-full animate-spin" />
+                    <div className="w-10 h-10 border-4 border-white/5 border-t-white rounded-full animate-spin" />
                 </div>
             ) : (
                 <div className="overflow-x-auto custom-scrollbar relative z-10">
@@ -155,7 +155,7 @@ const RoleManager = () => {
                                     <td className="py-6">
                                         <div className="flex gap-1.5">
                                             {role.permissions.map((p) => (
-                                                <span key={p} className="bg-neon-lime/10 text-neon-lime border border-neon-lime/20 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">{p}</span>
+                                                <span key={p} className="bg-white/10 text-white border border-white/20 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">{p}</span>
                                             ))}
                                         </div>
                                     </td>
@@ -185,7 +185,7 @@ const RoleManager = () => {
                 footer={
                     <>
                         <button onClick={() => setModalOpen(false)} className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white border border-white/10 transition-all">Cancelar</button>
-                        <button form="role-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-neon-lime text-dark-card hover:scale-105 transition-all disabled:opacity-50">
+                        <button form="role-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-white text-black hover:scale-105 transition-all disabled:opacity-50">
                             {saving ? 'Guardando...' : 'Guardar'}
                         </button>
                     </>
@@ -197,7 +197,7 @@ const RoleManager = () => {
                         <input
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-neon-lime outline-none transition-all"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-white outline-none transition-all"
                             placeholder="EJ. SUPERVISOR DE ALMACEN"
                         />
                     </div>
@@ -206,7 +206,7 @@ const RoleManager = () => {
                         <input
                             value={form.description}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-neon-lime outline-none transition-all"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-white outline-none transition-all"
                             placeholder="Breve descripcion del rol"
                         />
                     </div>
@@ -220,7 +220,7 @@ const RoleManager = () => {
                                         type="button"
                                         key={mod.key}
                                         onClick={() => togglePermission(mod.key)}
-                                        className={`py-4 rounded-2xl border-2 font-black text-sm uppercase tracking-widest transition-all ${active ? 'bg-neon-lime text-dark-card border-neon-lime' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
+                                        className={`py-4 rounded-2xl border-2 font-black text-sm uppercase tracking-widest transition-all ${active ? 'bg-white text-black border-white' : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20'}`}
                                     >
                                         {mod.label}
                                     </button>

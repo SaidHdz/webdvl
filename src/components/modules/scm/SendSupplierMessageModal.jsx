@@ -59,7 +59,7 @@ const SendSupplierMessageModal = ({ isOpen, onClose, supplier, product, onSent }
             footer={
                 <>
                     <button onClick={onClose} className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white border border-white/10 transition-all">Cancelar</button>
-                    <button form="supplier-msg-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-neon-lime text-dark-card hover:scale-105 transition-all disabled:opacity-50">
+                    <button form="supplier-msg-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-white text-black hover:scale-105 transition-all disabled:opacity-50">
                         {saving ? 'Enviando...' : 'Enviar Mensaje'}
                     </button>
                 </>
@@ -77,7 +77,7 @@ const SendSupplierMessageModal = ({ isOpen, onClose, supplier, product, onSent }
                     <input
                         value={form.asunto}
                         onChange={(e) => setForm({ ...form, asunto: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all text-sm"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all text-sm"
                         placeholder="Asunto del mensaje"
                     />
                 </div>
@@ -87,7 +87,7 @@ const SendSupplierMessageModal = ({ isOpen, onClose, supplier, product, onSent }
                         value={form.mensaje}
                         onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
                         rows={5}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all text-sm resize-none"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all text-sm resize-none"
                         placeholder="Escribe el mensaje..."
                     />
                 </div>

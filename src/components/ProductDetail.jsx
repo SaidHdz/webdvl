@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import { toast } from 'sonner';
 import { useCart } from '../context/CartContext';
 
 const ProductDetail = ({ product, onBack }) => {
@@ -8,6 +10,18 @@ const ProductDetail = ({ product, onBack }) => {
   const [selectedColor, setSelectedColor] = useState('white');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
+  
+  const btnControls = useAnimation();
+
+  const theme = useMemo(() => {
+    const name = product.name.toLowerCase();
+    const isPurple = name.includes('slime') || name.includes('eyes') || name.includes('heart');
+    const isRed = (name.includes('devil') && !name.includes('beanie')) || name.includes('flowers') || name.includes('voodoo') || name.includes('diavloo') || name.includes('see you');
+
+    if (isPurple) return { accent: '#66278b', glow: 'rgba(102, 39, 139, 0.6)' };
+    if (isRed) return { accent: '#bf4a4a', glow: 'rgba(191, 74, 74, 0.6)' };
+    return { accent: '#ffffff', glow: 'rgba(255,255,255,0.15)' };
+  }, [product.name]);
 
   const imagesList = product.images[selectedColor] || [];
 
@@ -16,133 +30,180 @@ const ProductDetail = ({ product, onBack }) => {
     setCurrentImageIndex(0);
   };
 
-  const handleNextImage = () => {
-    if (imagesList.length > 1) {
-      setIsFading(true);
-      setTimeout(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % imagesList.length);
-        setIsFading(false);
-      }, 200);
-    }
+  const handleThumbnailClick = (index) => {
+    if (index === currentImageIndex) return;
+    setIsFading(true);
+    setTimeout(() => {
+      setCurrentImageIndex(index);
+      setIsFading(false);
+    }, 200);
   };
 
-  const handlePrevImage = () => {
-    if (imagesList.length > 1) {
-      setIsFading(true);
-      setTimeout(() => {
-        setCurrentImageIndex((prev) => (prev - 1 + imagesList.length) % imagesList.length);
-        setIsFading(false);
-      }, 200);
-    }
-  };
+  const handleAddToCart = async () => {
+    // 1. Trigger Button Pop (More pronounced)
+    btnControls.start({
+        scale: [1, 0.85, 1.15, 1],
+        transition: { duration: 0.4, ease: "backOut" }
+    });
 
-  const handleAddToCart = () => {
+    // 2. Logic
     addToCart(product, selectedSize, selectedColor, imagesList[currentImageIndex]);
+    
+    // 3. Feedback Toast (No emojis)
+    toast.success(`${product.name} añadida al carrito`, {
+        description: `Talla ${selectedSize} — Color ${selectedColor}`
+    });
   };
 
   return (
-    <div className="flex flex-col gap-10 animate-slide-up max-w-4xl mx-auto">
-      <button 
-        onClick={onBack}
-        className="self-start text-[10px] uppercase font-black tracking-[3px] text-white/40 hover:text-accent transition-all duration-300 flex items-center gap-2 group"
-      >
-        <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> Volver al Catálogo
-      </button>
+    <div className={`fixed inset-0 z-50 bg-[#050505] overflow-y-auto custom-scrollbar`}>
+      {/* Background Atmosphere */}
+      <div 
+        className="fixed inset-0 z-0 transition-all duration-1000"
+        style={{ 
+          background: `radial-gradient(circle at 25% 50%, ${theme.glow} 0%, transparent 75%)` 
+        }}
+      />
 
-      <div className="grid lg:grid-cols-2 gap-12 items-start">
-        {/* Carrusel Premium */}
-        <div className="relative group bg-white/5 backdrop-blur-3xl rounded-[40px] p-8 border border-white/10 shadow-2xl overflow-hidden aspect-square flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50" />
-          <button onClick={handlePrevImage} className="absolute left-4 z-10 p-2 text-white/20 hover:text-accent transition-all text-2xl">❮</button>
-          <img 
-            src={imagesList[currentImageIndex]} 
-            alt={product.name} 
-            className={`relative z-0 w-full h-full object-contain transition-all duration-500 transform ${isFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
-          />
-          <button onClick={handleNextImage} className="absolute right-4 z-10 p-2 text-white/20 hover:text-accent transition-all text-2xl">❯</button>
-          
-          {/* Indicador de imagen */}
-          <div className="absolute bottom-6 flex gap-2">
-            {imagesList.map((_, i) => (
-              <div key={i} className={`h-1 transition-all duration-300 rounded-full ${i === currentImageIndex ? 'w-8 bg-accent' : 'w-2 bg-white/20'}`} />
+      {/* Top Header / Navigation - Fixed for constant visibility */}
+      <nav className="fixed top-[80px] inset-x-0 p-6 lg:p-8 flex justify-between items-center z-[110] pointer-events-none">
+        <button 
+          onClick={onBack}
+          className="pointer-events-auto bg-white/[0.04] backdrop-blur-3xl border border-white/10 text-white px-8 py-3 rounded-full text-[10px] uppercase font-black tracking-[3px] hover:bg-white hover:text-black transition-all group shadow-2xl"
+        >
+          <span className="inline-block group-hover:-translate-x-1 transition-transform mr-2">←</span> 
+          Volver a la Colección
+        </button>
+      </nav>
+
+      <div className="flex flex-col lg:flex-row-reverse min-h-screen relative z-10">
+        
+        {/* Right Section: Information Card (Compacted Layout) */}
+        <div className="flex-1 flex items-center justify-center p-6 lg:p-12 z-20">
+          <div className="max-w-md w-full bg-white/[0.04] backdrop-blur-3xl border border-white/10 p-10 lg:p-11 rounded-[48px] shadow-2xl animate-slide-up">
+            
+            {/* Badge & Category */}
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-[10px] font-black uppercase tracking-[4px] text-white/30">
+                {product.category}
+              </span>
+              <span className={`text-[8px] font-black uppercase tracking-[2px] px-3 py-1 rounded-full border ${soldOut ? 'bg-red-500/20 text-red-500 border-red-500/20' : product.is_low ? 'bg-amber-500/20 text-amber-500 border-amber-500/20' : 'bg-white/5 text-white/40 border-white/5'}`}>
+                {soldOut ? 'Sin Stock' : `${product.stock_actual} Disponibles`}
+              </span>
+            </div>
+
+            {/* Title & Headline */}
+            <div className="mb-6">
+              <h1 className="font-syne text-4xl lg:text-5xl font-black uppercase tracking-[-0.04em] leading-[0.9] text-white mb-4">
+                {product.name}
+              </h1>
+              <p className="text-white/60 text-base font-bold italic tracking-tight leading-snug">
+                "Diseño de edición limitada, {product.description?.split('/')[0] || '100% algodón oversize'}"
+              </p>
+            </div>
+
+            {/* Price & Selection */}
+            <div className="space-y-7">
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-black text-white">${product.price}</span>
+                <span className="text-sm font-black text-white/60 uppercase tracking-[0.2em]">MXN</span>
+              </div>
+
+              {/* Color Selector with High-Contrast Active State */}
+              <div className="space-y-3">
+                <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Variante</span>
+                <div className="flex gap-4">
+                  {Object.keys(product.images).map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => handleColorChange(color)}
+                      className={`w-9 h-9 rounded-full border-2 transition-all duration-500 relative flex items-center justify-center ${
+                        selectedColor === color 
+                        ? 'border-white scale-110 shadow-lg' 
+                        : 'border-white/10 opacity-40 hover:opacity-100'
+                      }`}
+                      style={{ 
+                        backgroundColor: color === 'white' ? '#fff' : '#000'
+                      }}
+                    >
+                      {/* Active Indicator: Dot with inverted color */}
+                      {selectedColor === color && (
+                        <div 
+                          className="w-1.5 h-1.5 rounded-full" 
+                          style={{ backgroundColor: color === 'white' ? '#000' : '#fff' }}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Size Selector */}
+              <div className="space-y-3">
+                <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Talla</span>
+                <div className="flex gap-2">
+                  {['S', 'M', 'L', 'XL'].map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`w-11 h-11 rounded-xl font-black text-[10px] transition-all duration-300 border ${
+                        selectedSize === size 
+                        ? 'bg-white text-black border-white' 
+                        : 'bg-transparent text-white border-white/5 hover:border-white/20'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Button with Pop Animation */}
+            <motion.button
+              animate={btnControls}
+              onClick={handleAddToCart}
+              disabled={soldOut}
+              className={`w-full mt-8 py-5 rounded-[20px] font-black uppercase tracking-[4px] text-[11px] transition-all duration-500 ${
+                soldOut 
+                ? 'bg-white/5 text-white/20 cursor-not-allowed' 
+                : 'bg-white text-black hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95'
+              }`}
+            >
+              {soldOut ? 'Agotado' : 'Añadir al Carrito'}
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Left Section: Product Focus (Clean View) */}
+        <div className="flex-[1.2] relative flex items-center justify-center p-12 lg:p-24 overflow-hidden">
+          {/* Main Product Image */}
+          <div className={`relative z-10 w-full h-full max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
+            <img 
+              src={imagesList[currentImageIndex]} 
+              alt={product.name} 
+              className="w-full h-full object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)] scale-90 lg:scale-100"
+            />
+          </div>
+
+          {/* Vertical Thumbnails */}
+          <div className="absolute left-8 lg:left-12 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3">
+            {imagesList.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => handleThumbnailClick(i)}
+                className={`w-14 h-14 lg:w-16 lg:h-16 rounded-xl border-2 overflow-hidden transition-all duration-500 bg-white/5 backdrop-blur-md ${
+                  i === currentImageIndex 
+                  ? 'border-white scale-110 shadow-xl' 
+                  : 'border-white/5 opacity-30 hover:opacity-80'
+                }`}
+              >
+                <img src={img} alt="Preview" className="w-full h-full object-cover" />
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Info y Selectores */}
-        <div className="flex flex-col gap-10 lg:pt-10">
-          <div>
-            <h2 className="font-syne text-5xl md:text-6xl font-black uppercase tracking-[-0.05em] leading-none mb-4 text-white">
-              {product.name}
-            </h2>
-            <div className="flex items-center gap-4">
-              <p className="text-accent font-bold text-xl tracking-[0.2em]">${product.price}</p>
-              {soldOut ? (
-                <span className="text-[10px] font-black uppercase tracking-widest bg-red-500 text-white px-3 py-1 rounded-full">Agotado</span>
-              ) : (
-                <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${product.is_low ? 'bg-neon-lime text-dark-card' : 'bg-white/5 text-white/40'}`}>
-                  {product.stock_actual} disponibles
-                </span>
-              )}
-            </div>
-          </div>
-
-          <p className="text-white/60 leading-relaxed text-sm font-medium border-l-2 border-primary/40 pl-6 tracking-wide">
-            {product.description}
-          </p>
-
-          <div className="space-y-12">
-            {/* Tallas */}
-            <div className="space-y-5">
-              <span className="text-[10px] uppercase font-black tracking-[0.5em] text-white/30 block">Seleccionar Talla</span>
-              <div className="flex gap-4">
-                {['S', 'M', 'L'].map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-14 h-14 rounded-2xl font-black transition-all duration-300 border-2 tracking-tighter ${
-                      selectedSize === size 
-                      ? 'bg-white text-black border-white shadow-[0_0_25px_rgba(255,255,255,0.4)]' 
-                      : 'bg-transparent text-white border-white/10 hover:border-white/40'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Colores */}
-            <div className="space-y-5">
-              <span className="text-[10px] uppercase font-black tracking-[0.5em] text-white/30 block">Variante de Color</span>
-              <div className="flex gap-6">
-                <button 
-                  onClick={() => handleColorChange('white')}
-                  className={`group relative w-12 h-12 rounded-full bg-white transition-all duration-500 ${selectedColor === 'white' ? 'ring-4 ring-primary ring-offset-8 ring-offset-black scale-110' : 'opacity-30 hover:opacity-100'}`}
-                >
-                   <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-black/20 to-transparent"></span>
-                </button>
-                <button 
-                  onClick={() => handleColorChange('black')}
-                  className={`group relative w-12 h-12 rounded-full bg-zinc-900 border border-white/10 transition-all duration-500 ${selectedColor === 'black' ? 'ring-4 ring-primary ring-offset-8 ring-offset-black scale-110' : 'opacity-30 hover:opacity-100'}`}
-                >
-                   <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/10 to-transparent"></span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={handleAddToCart}
-            disabled={soldOut}
-            className={`group relative w-full overflow-hidden rounded-3xl py-6 transition-all duration-500 mt-4 ${soldOut ? 'bg-white/10 cursor-not-allowed' : 'bg-white hover:shadow-[0_0_50px_rgba(109,40,217,0.5)] active:scale-95'}`}
-          >
-            {!soldOut && <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />}
-            <span className={`relative z-10 font-syne font-black uppercase tracking-[0.4em] text-sm transition-colors duration-500 ${soldOut ? 'text-white/30' : 'text-black group-hover:text-white'}`}>
-              {soldOut ? 'Producto Agotado' : `Agregar al Carrito — $${product.price}`}
-            </span>
-          </button>
-        </div>
       </div>
     </div>
   );

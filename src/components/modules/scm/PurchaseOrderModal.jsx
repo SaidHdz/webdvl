@@ -71,7 +71,7 @@ const PurchaseOrderModal = ({ isOpen, onClose, supplier, products = [], onCreate
             footer={
                 <>
                     <button onClick={onClose} className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white border border-white/10 transition-all">Cancelar</button>
-                    <button form="po-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-neon-lime text-dark-card hover:scale-105 transition-all disabled:opacity-50">{saving ? 'Creando...' : `Crear ($${total})`}</button>
+                    <button form="po-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-white text-black hover:scale-105 transition-all disabled:opacity-50">{saving ? 'Creando...' : `Crear ($${total})`}</button>
                 </>
             }
         >
@@ -84,7 +84,7 @@ const PurchaseOrderModal = ({ isOpen, onClose, supplier, products = [], onCreate
                             <div key={idx} className="flex gap-2 items-end">
                                 <div className="flex-grow space-y-1">
                                     <label className="text-[8px] uppercase font-black text-white/30 tracking-widest ml-2">Producto</label>
-                                    <select value={line.id_producto} onChange={(e) => updateLine(idx, { id_producto: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:border-neon-lime outline-none text-sm cursor-pointer">
+                                    <select value={line.id_producto} onChange={(e) => updateLine(idx, { id_producto: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:border-white outline-none text-sm cursor-pointer">
                                         {products.map((p) => (
                                             <option key={p.id_producto} value={p.id_producto} className="bg-zinc-900">{p.name}</option>
                                         ))}
@@ -92,20 +92,20 @@ const PurchaseOrderModal = ({ isOpen, onClose, supplier, products = [], onCreate
                                 </div>
                                 <div className="w-20 space-y-1">
                                     <label className="text-[8px] uppercase font-black text-white/30 tracking-widest ml-2">Cant.</label>
-                                    <input type="number" min="1" value={line.cantidad} onChange={(e) => updateLine(idx, { cantidad: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:border-neon-lime outline-none text-sm" />
+                                    <input type="number" min="1" value={line.cantidad} onChange={(e) => updateLine(idx, { cantidad: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:border-white outline-none text-sm" />
                                 </div>
                                 <div className="w-24 space-y-1">
                                     <label className="text-[8px] uppercase font-black text-white/30 tracking-widest ml-2">Costo</label>
-                                    <input type="number" min="0" step="0.01" value={line.costo_unitario} onChange={(e) => updateLine(idx, { costo_unitario: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:border-neon-lime outline-none text-sm" />
+                                    <input type="number" min="0" step="0.01" value={line.costo_unitario} onChange={(e) => updateLine(idx, { costo_unitario: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:border-white outline-none text-sm" />
                                 </div>
                                 <button type="button" onClick={() => removeLine(idx)} disabled={lines.length === 1} className="px-3 py-2.5 text-red-500/60 hover:text-red-500 disabled:opacity-20 text-lg">✕</button>
                             </div>
                         ))}
                     </div>
-                    <button type="button" onClick={addLine} className="text-[10px] font-black uppercase tracking-widest text-neon-lime hover:underline">+ Agregar linea</button>
+                    <button type="button" onClick={addLine} className="text-[10px] font-black uppercase tracking-widest text-white hover:underline">+ Agregar linea</button>
                     <div className="space-y-1">
                         <label className="text-[9px] uppercase font-black text-white/30 tracking-[3px] ml-2">Notas</label>
-                        <input value={notas} onChange={(e) => setNotas(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white focus:border-neon-lime outline-none text-sm" placeholder="Notas del pedido (opcional)" />
+                        <input value={notas} onChange={(e) => setNotas(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white focus:border-white outline-none text-sm" placeholder="Notas del pedido (opcional)" />
                     </div>
                 </form>
             )}

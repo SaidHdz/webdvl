@@ -100,22 +100,22 @@ const ClientManager = () => {
 
     return (
         <div className="bg-dark-card text-white rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-neon-lime/5 rounded-full blur-3xl -mr-32 -mt-32" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32" />
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/5 pb-8 relative z-10 gap-4">
                 <div>
                     <h2 className="text-3xl font-black uppercase tracking-tighter">Gestion de Clientes</h2>
                     <p className="text-text-muted text-xs font-bold uppercase tracking-[3px] mt-1">Customer Relationship Management (CRM)</p>
                 </div>
-                <button onClick={downloadCSV} className="bg-neon-lime text-dark-card font-black px-8 py-4 rounded-full text-[10px] uppercase tracking-[2px] hover:scale-105 transition-all shadow-[0_0_30px_rgba(219,255,0,0.2)]">Descargar Reporte</button>
+                <button onClick={downloadCSV} className="bg-white text-dark-card font-black px-8 py-4 rounded-full text-[10px] uppercase tracking-[2px] hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]">Descargar Reporte</button>
             </div>
 
             <div className="mb-8 relative z-10">
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nombre o correo..." className="bg-white/5 border border-white/10 text-sm rounded-full px-6 py-3.5 w-full md:w-96 focus:outline-none focus:border-neon-lime transition-all placeholder:text-text-muted/50" />
+                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nombre o correo..." className="bg-white/5 border border-white/10 text-sm rounded-full px-6 py-3.5 w-full md:w-96 focus:outline-none focus:border-white transition-all placeholder:text-text-muted/50" />
             </div>
 
             {loading ? (
-                <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-white/5 border-t-neon-lime rounded-full animate-spin" /></div>
+                <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-white/5 border-t-white rounded-full animate-spin" /></div>
             ) : (
                 <div className="overflow-x-auto custom-scrollbar relative z-10">
                     <table className="w-full text-left border-collapse">
@@ -133,15 +133,15 @@ const ClientManager = () => {
                                 <tr key={c.id} className="group hover:bg-white/[0.02] transition-colors">
                                     <td className="py-6 pl-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-black text-neon-lime text-xs">{c.name.charAt(0).toUpperCase()}</div>
+                                            <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-black text-white text-xs">{c.name.charAt(0).toUpperCase()}</div>
                                             <span className="font-bold text-white uppercase tracking-tight text-sm">{c.name}</span>
                                         </div>
                                     </td>
                                     <td className="py-6 text-zinc-400 text-sm">{c.email}</td>
                                     <td className="py-6 text-center font-black text-white">{c.num_pedidos}</td>
-                                    <td className="py-6 text-right font-black text-neon-lime">${c.total_compras}</td>
+                                    <td className="py-6 text-right font-black text-white">${c.total_compras}</td>
                                     <td className="py-6 pr-4 text-right">
-                                        <button onClick={() => openDetail(c)} className="text-[10px] font-black uppercase text-neon-lime hover:underline tracking-widest">Ver Historial →</button>
+                                        <button onClick={() => openDetail(c)} className="text-[10px] font-black uppercase text-white hover:underline tracking-widest">Ver Historial →</button>
                                     </td>
                                 </tr>
                             )) : (
@@ -159,7 +159,7 @@ const ClientManager = () => {
                 subtitle={detail?.client?.email}
             >
                 {detailLoading || !detail?.orders ? (
-                    <div className="py-16 flex justify-center"><div className="w-8 h-8 border-4 border-white/10 border-t-neon-lime rounded-full animate-spin" /></div>
+                    <div className="py-16 flex justify-center"><div className="w-8 h-8 border-4 border-white/10 border-t-white rounded-full animate-spin" /></div>
                 ) : (
                     <div className="space-y-8">
                         <div className="grid grid-cols-3 gap-4">
@@ -179,8 +179,8 @@ const ClientManager = () => {
                                                 <p className="text-[9px] text-white/30 font-bold uppercase tracking-widest mt-0.5">{new Date(o.created_at + 'Z').toLocaleDateString('es-MX')} · {o.tipo_envio || 'N/A'}</p>
                                             </div>
                                             <div className="text-right flex flex-col items-end gap-1">
-                                                <p className="font-black text-neon-lime text-lg tracking-tighter">${o.total}</p>
-                                                <span className={`text-[8px] font-black uppercase px-3 py-1 rounded-full ${o.estado === 'Cancelado' ? 'bg-red-500/10 text-red-500' : 'bg-neon-lime/10 text-neon-lime border border-neon-lime/20'}`}>{o.estado}</span>
+                                                <p className="font-black text-white text-lg tracking-tighter">${o.total}</p>
+                                                <span className={`text-[8px] font-black uppercase px-3 py-1 rounded-full ${o.estado === 'Cancelado' ? 'bg-red-500/10 text-red-500' : 'bg-white/10 text-white border border-white/20'}`}>{o.estado}</span>
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
@@ -201,7 +201,7 @@ const ClientManager = () => {
 
 const Stat = ({ label, value, muted }) => (
     <div className="bg-white/[0.03] border border-white/5 p-6 rounded-2xl text-center">
-        <p className={`text-3xl font-black tracking-tighter ${muted ? 'text-white' : 'text-neon-lime'}`}>{value}</p>
+        <p className={`text-3xl font-black tracking-tighter ${muted ? 'text-white' : 'text-white'}`}>{value}</p>
         <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mt-1">{label}</p>
     </div>
 );

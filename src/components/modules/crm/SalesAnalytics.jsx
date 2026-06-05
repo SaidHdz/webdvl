@@ -30,7 +30,7 @@ const SalesAnalytics = () => {
 
     return (
         <div className="bg-dark-card text-white rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-neon-lime/5 rounded-full blur-3xl -mr-32 -mt-32" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32" />
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/5 pb-8 relative z-10 gap-4">
                 <div>
@@ -39,13 +39,13 @@ const SalesAnalytics = () => {
                 </div>
                 <div className="flex gap-2 bg-dark-subcard p-1.5 rounded-full border border-white/5">
                     {RANGES.map((r) => (
-                        <button key={r.key} onClick={() => setRange(r.key)} className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${range === r.key ? 'bg-neon-lime text-dark-card' : 'text-text-muted hover:text-white'}`}>{r.label}</button>
+                        <button key={r.key} onClick={() => setRange(r.key)} className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${range === r.key ? 'bg-white text-black' : 'text-text-muted hover:text-white'}`}>{r.label}</button>
                     ))}
                 </div>
             </div>
 
             {loading || !data ? (
-                <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-white/5 border-t-neon-lime rounded-full animate-spin" /></div>
+                <div className="py-20 flex justify-center"><div className="w-10 h-10 border-4 border-white/5 border-t-white rounded-full animate-spin" /></div>
             ) : (
                 <div className="space-y-8 relative z-10">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -60,9 +60,9 @@ const SalesAnalytics = () => {
                             <div className="flex items-end gap-3 h-48">
                                 {data.series.map((point) => (
                                     <div key={point.fecha} className="flex-1 flex flex-col items-center gap-2 group">
-                                        <span className="text-[9px] font-black text-neon-lime opacity-0 group-hover:opacity-100 transition-opacity">${point.total}</span>
+                                        <span className="text-[9px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity">${point.total}</span>
                                         <div
-                                            className="w-full bg-gradient-to-t from-neon-lime/30 to-neon-lime rounded-t-lg transition-all hover:from-neon-lime/50"
+                                            className="w-full bg-gradient-to-t from-white/30 to-white rounded-t-lg transition-all hover:from-white/50"
                                             style={{ height: `${maxSeries > 0 ? Math.max((point.total / maxSeries) * 100, 4) : 4}%` }}
                                             title={`$${point.total}`}
                                         />
@@ -86,7 +86,7 @@ const SalesAnalytics = () => {
                                     </div>
                                     <div className="flex items-center gap-6">
                                         <span className="text-xs text-white/40 font-bold">{p.unidades} uds</span>
-                                        <span className="text-sm font-black text-neon-lime">${p.ingresos}</span>
+                                        <span className="text-sm font-black text-white">${p.ingresos}</span>
                                     </div>
                                 </div>
                             )) : <p className="text-white/20 text-xs italic">Sin ventas en este periodo.</p>}
@@ -107,7 +107,7 @@ const formatDay = (iso) => {
 const Metric = ({ label, value, muted }) => (
     <div className="bg-white/[0.03] border border-white/5 p-8 rounded-3xl">
         <p className="text-text-muted text-[10px] uppercase font-black tracking-[2px]">{label}</p>
-        <p className={`text-4xl font-black mt-2 tracking-tighter ${muted ? 'text-white' : 'text-neon-lime'}`}>{value}</p>
+        <p className={`text-4xl font-black mt-2 tracking-tighter ${muted ? 'text-white' : 'text-white'}`}>{value}</p>
     </div>
 );
 

@@ -1,28 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion, useAnimation } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const Header = ({ onMenuClick, onCartClick, onAdminClick }) => {
+const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection }) => {
   const { cartCount } = useCart();
   const { user, isAuthenticated, isStaff, logout } = useAuth();
   const navigate = useNavigate();
+  const controls = useAnimation();
+
+  // Trigger pop animation when cartCount changes
+  useEffect(() => {
+    if (cartCount > 0) {
+      controls.start({
+        scale: [1, 1.4, 0.9, 1.1, 1],
+        transition: { duration: 0.5, ease: "easeInOut" }
+      });
+    }
+  }, [cartCount, controls]);
+
+  const navLinks = [
+    { label: 'Colección', filter: 'Todas' },
+    { label: 'Playeras', filter: 'Playera' },
+    { label: 'Gorros', filter: 'Gorro' },
+  ];
 
   return (
     <header className="fixed top-0 left-0 w-full h-[80px] bg-black/40 backdrop-blur-xl flex justify-between items-center px-8 z-[100] border-b border-white/5">
-      <div className="flex items-center gap-6">
-        <button 
-          onClick={onMenuClick}
-          className="text-white hover:text-accent transition-all duration-300 p-2 hover:scale-110"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="7" x2="21" y2="7"></line>
-            <line x1="3" y1="17" x2="21" y2="17"></line>
-          </svg>
-        </button>
+      {/* Left: Logo & Menu */}
+      <div className="flex items-center gap-8 flex-1">
+        <div className="flex items-center cursor-pointer group" onClick={() => onScrollToCollection('Todas')}>
+            <h1 className="font-syne text-3xl font-black tracking-[-0.05em] text-white transition-all duration-500 group-hover:tracking-tighter">
+            DVL
+            </h1>
+        </div>
 
-        {/* Botón de Login (Escritorio) */}
+        <nav className="hidden lg:flex items-center gap-8 ml-8">
+            {navLinks.map((link) => (
+                <button
+                    key={link.label}
+                    onClick={() => onScrollToCollection(link.filter)}
+                    className="text-[10px] font-black uppercase tracking-[3px] text-white/40 hover:text-white transition-all"
+                >
+                    {link.label}
+                </button>
+            ))}
+        </nav>
+      </div>
+
+      {/* Center: Spare space (balanced) */}
+      <div className="flex-grow hidden lg:block" />
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-6 flex-1 justify-end">
+        {/* Login/Staff Section */}
         {!isAuthenticated ? (
           <button 
             onClick={() => navigate('/login')}
@@ -33,59 +65,63 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick }) => {
           </button>
         ) : (
           <div className="hidden md:flex items-center gap-4">
-             <div className="flex flex-col items-start">
-                <span className="text-[8px] text-white/30 uppercase font-black tracking-widest">Bienvenido</span>
-                <span className="text-[10px] text-accent font-black uppercase tracking-tight">{user.name}</span>
+             <div className="flex flex-col items-end text-right">
+                <span className="text-[8px] text-white/30 uppercase font-black tracking-widest leading-none">Miembro</span>
+                <span className="text-[10px] text-accent font-black uppercase tracking-tight">{user.name.split(' ')[0]}</span>
              </div>
              <button 
                 onClick={logout}
-                className="text-[9px] font-black uppercase tracking-[2px] text-red-500/60 hover:text-red-500 transition-all border border-red-500/20 hover:border-red-500 px-3 py-1 rounded-full"
+                className="text-[9px] font-black uppercase tracking-[1px] text-white/20 hover:text-red-500 transition-all border border-white/10 hover:border-red-500 px-3 py-1 rounded-full"
              >
                 Salir
              </button>
           </div>
         )}
-      </div>
 
-      <div className="flex flex-col items-center cursor-pointer group" onClick={() => navigate('/')}>
-        <h1 className="font-syne text-3xl md:text-4xl font-black tracking-[0.2em] text-white transition-all duration-500 group-hover:tracking-[0.3em]">
-          DVL
-        </h1>
-      </div>
-
-      <div className="flex items-center gap-4">
         {/* Quick access to the module hub for staff accounts */}
         {isAuthenticated && isStaff && (
           <button
             onClick={onAdminClick}
-            className="hidden md:block text-[9px] font-black uppercase tracking-[2px] bg-white/5 border border-white/10 hover:border-accent text-white hover:text-accent px-4 py-2 rounded-full transition-all"
+            className="hidden md:block text-[9px] font-black uppercase tracking-[2px] bg-white text-black border border-white hover:bg-transparent hover:text-white px-4 py-2 rounded-full transition-all shadow-xl"
           >
             Modulos
           </button>
         )}
 
-        <button 
+        <motion.button 
+          animate={controls}
           onClick={onCartClick}
           className="relative p-2 hover:scale-110 transition-all duration-300 group"
         >
           <svg 
-            width="24" 
-            height="24" 
+            width="20" 
+            height="20" 
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="currentColor" 
-            strokeWidth="1.5"
-            className="group-hover:drop-shadow-[0_0_8px_rgba(219,255,0,0.8)]"
+            strokeWidth="2"
+            className="group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
           >
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z"></path>
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <path d="M16 10a4 4 0 01-8 0"></path>
           </svg>
           {cartCount > 0 && (
-            <span className="absolute top-0 right-0 bg-accent text-black text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-black/20">
+            <span className="absolute -top-1 -right-1 bg-white text-black text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-black/20 shadow-lg">
               {cartCount}
             </span>
           )}
+        </motion.button>
+
+        <button 
+          onClick={onMenuClick}
+          className="lg:hidden text-white hover:text-accent transition-all duration-300 p-2"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="7" x2="21" y2="7"></line>
+            <line x1="3" y1="17" x2="21" y2="17"></line>
+          </svg>
         </button>
       </div>
     </header>

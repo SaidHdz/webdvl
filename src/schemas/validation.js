@@ -31,6 +31,7 @@ export const checkoutSchema = z.object({
   colonia: z.string().optional(),
   ciudad: z.string().optional(),
   cp: z.string().optional(),
+  notas: z.string().max(300, 'Máximo 300 caracteres').optional(),
 }).refine((data) => {
     if (data.metodoEnvio === 'nacional') {
         return !!data.calle && !!data.colonia && !!data.ciudad && !!data.cp;

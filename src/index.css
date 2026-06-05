@@ -4,7 +4,6 @@
   --color-canvas-bg: #EBF1F6;       /* Fondo gris-azul pastel del dashboard */
   --color-dark-card: #18191B;       /* Contenedores oscuros principales */
   --color-dark-subcard: #22252A;    /* Sub-tarjetas internas */
-  --color-neon-lime: #DBFF00;       /* Color de acento neón de la imagen */
   --color-text-muted: #8E939E;      /* Textos secundarios */
   
   --radius-3xl: 1.75rem;            /* Bordes agresivos del diseño */
@@ -56,19 +55,19 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-neon-lime);
+  background: white;
 }
 
 .bg-accent {
-  background-color: var(--color-neon-lime);
+  background-color: white;
 }
 
 .text-accent {
-  color: var(--color-neon-lime);
+  color: white;
 }
 
 .border-accent {
-  border-color: var(--color-neon-lime);
+  border-color: white;
 }
 
 .bg-primary {

@@ -121,7 +121,7 @@ const InventoryManager = () => {
 
     return (
         <div className="bg-dark-card text-white rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon-lime/20 to-transparent" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/5 pb-8 relative z-10 gap-6">
                 <div>
@@ -145,7 +145,7 @@ const InventoryManager = () => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar por nombre o SKU..."
-                    className="bg-white/5 border border-white/10 text-sm rounded-full px-6 py-3.5 w-full sm:w-96 focus:outline-none focus:border-neon-lime transition-all placeholder:text-text-muted/50"
+                    className="bg-white/5 border border-white/10 text-sm rounded-full px-6 py-3.5 w-full sm:w-96 focus:outline-none focus:border-white transition-all placeholder:text-text-muted/50"
                 />
                 <button
                     onClick={() => setLowOnly((v) => !v)}
@@ -157,7 +157,7 @@ const InventoryManager = () => {
 
             {loading ? (
                 <div className="py-20 flex justify-center">
-                    <div className="w-10 h-10 border-4 border-white/5 border-t-neon-lime rounded-full animate-spin" />
+                    <div className="w-10 h-10 border-4 border-white/5 border-t-white rounded-full animate-spin" />
                 </div>
             ) : (
                 <div className="overflow-x-auto custom-scrollbar relative z-10">
@@ -197,7 +197,7 @@ const InventoryManager = () => {
                                             )}
                                             <button
                                                 onClick={() => setRestockTarget(item)}
-                                                className="text-[10px] font-black uppercase text-neon-lime hover:underline tracking-widest"
+                                                className="text-[10px] font-black uppercase text-white hover:underline tracking-widest"
                                             >
                                                 Reabastecer
                                             </button>
@@ -223,7 +223,7 @@ const InventoryManager = () => {
                 footer={
                     <>
                         <button onClick={() => setEditing(null)} className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white border border-white/10 transition-all">Cancelar</button>
-                        <button form="inv-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-neon-lime text-dark-card hover:scale-105 transition-all disabled:opacity-50">{saving ? 'Guardando...' : 'Guardar'}</button>
+                        <button form="inv-form" type="submit" disabled={saving} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-white text-black hover:scale-105 transition-all disabled:opacity-50">{saving ? 'Guardando...' : 'Guardar'}</button>
                     </>
                 }
             >
@@ -231,16 +231,16 @@ const InventoryManager = () => {
                     <div className="grid grid-cols-2 gap-5">
                         <div className="space-y-2">
                             <label className="text-[9px] uppercase font-black text-white/30 tracking-[3px] ml-2">Stock Actual</label>
-                            <input type="number" min="0" value={form.stock_actual} onChange={(e) => setForm({ ...form, stock_actual: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all" />
+                            <input type="number" min="0" value={form.stock_actual} onChange={(e) => setForm({ ...form, stock_actual: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all" />
                         </div>
                         <div className="space-y-2">
                             <label className="text-[9px] uppercase font-black text-white/30 tracking-[3px] ml-2">Stock Minimo</label>
-                            <input type="number" min="0" value={form.stock_minimo} onChange={(e) => setForm({ ...form, stock_minimo: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all" />
+                            <input type="number" min="0" value={form.stock_minimo} onChange={(e) => setForm({ ...form, stock_minimo: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all" />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-[9px] uppercase font-black text-white/30 tracking-[3px] ml-2">Proveedor</label>
-                        <select value={form.supplier_id} onChange={(e) => setForm({ ...form, supplier_id: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all cursor-pointer">
+                        <select value={form.supplier_id} onChange={(e) => setForm({ ...form, supplier_id: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all cursor-pointer">
                             <option value="" className="bg-zinc-900">Sin proveedor</option>
                             {suppliers.map((s) => (
                                 <option key={s.id} value={s.id} className="bg-zinc-900">{s.nombre_taller}</option>

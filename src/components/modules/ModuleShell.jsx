@@ -23,7 +23,7 @@ const ModuleShell = ({ title, subtitle, tabs, children }) => {
                 <div className="flex items-center gap-5">
                     <button
                         onClick={() => navigate('/hub')}
-                        className="w-12 h-12 rounded-full bg-dark-card border border-white/10 text-white/50 hover:text-neon-lime hover:border-neon-lime/40 transition-all flex items-center justify-center"
+                        className="w-12 h-12 rounded-full bg-dark-card border border-white/10 text-white/50 hover:text-white hover:border-white/40 transition-all flex items-center justify-center"
                         title="Volver al menu"
                     >
                         ←
@@ -36,11 +36,11 @@ const ModuleShell = ({ title, subtitle, tabs, children }) => {
                 <div className="flex items-center gap-4">
                     <div className="text-right hidden sm:block">
                         <p className="text-[8px] text-white/30 uppercase font-black tracking-widest">Sesion</p>
-                        <p className="text-[10px] text-neon-lime font-black uppercase">{user?.name}</p>
+                        <p className="text-[10px] text-white font-black uppercase">{user?.name}</p>
                     </div>
                     <button
                         onClick={logout}
-                        className="text-[9px] font-black uppercase tracking-[2px] text-red-500/60 hover:text-red-500 border border-red-500/20 hover:border-red-500 px-4 py-2 rounded-full transition-all"
+                        className="text-[9px] font-black uppercase tracking-[2px] text-red-500/60 hover:text-red-500 border border-white/20 hover:border-red-500 px-4 py-2 rounded-full transition-all"
                     >
                         Salir
                     </button>
@@ -56,7 +56,7 @@ const ModuleShell = ({ title, subtitle, tabs, children }) => {
                             onClick={() => navigate(tab.path)}
                             className={`px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
                                 isActive
-                                    ? 'bg-neon-lime text-dark-card shadow-[0_0_20px_rgba(219,255,0,0.3)]'
+                                    ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]'
                                     : 'text-white/40 hover:text-white hover:bg-white/5'
                             }`}
                         >

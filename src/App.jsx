@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
 import Header from './components/Header';
+import Hero from './components/Hero';
+import Footer from './components/Footer';
 import ProductGrid from './components/ProductGrid';
 import ProductDetailWrapper from './components/ProductDetailWrapper';
 import CartDrawer from './components/CartDrawer';
@@ -15,103 +18,249 @@ import CrmModule from './components/modules/CrmModule';
 import ScmModule from './components/modules/ScmModule';
 import ErpModule from './components/modules/ErpModule';
 import { useAuth } from './context/AuthContext';
+import { useCart } from './context/CartContext';
 
 /**
  * Root application shell.
- *
- * Routing is organized in three areas:
- * - Public storefront: catalog, product detail, login/register.
- * - Customer checkout (auth required).
- * - Back-office modules CRM / SCM / ERP, each gated by a module permission.
- *
- * After login, staff are routed to the module hub and customers to the store.
  */
 function App() {
   const { isAuthenticated, isStaff } = useAuth();
+  const { cart } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Global filter state for ProductGrid
+  const [currentCategory, setCurrentCategory] = useState('Todas');
+  const [currentSearch, setCurrentSearch] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const collectionRef = useRef(null);
+
+  // Resolute Jump-to-Collection Logic
+  useEffect(() => {
+    // We only trigger this if we arrived at '/' with the 'scrollTo: collection' flag
+    if (location.pathname === '/' && location.state?.scrollTo === 'collection') {
+        const performInstantJump = () => {
+            if (collectionRef.current) {
+                // Calculate absolute position
+                const headerOffset = 100;
+                const elementPosition = collectionRef.current.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                // Force the viewport to the grid IMMEDIATELY
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'instant'
+                });
+                
+                // Clear the state so refreshing the page starts at the Hero again
+                window.history.replaceState({}, document.title);
+            }
+        };
+
+        // Try multiple times to ensure we beat React's rendering and Framer Motion's transition timing
+        performInstantJump();
+        const timeout1 = setTimeout(performInstantJump, 30);
+        const timeout2 = setTimeout(performInstantJump, 100);
+        const timeout3 = setTimeout(performInstantJump, 300);
+
+        return () => {
+            clearTimeout(timeout1);
+            clearTimeout(timeout2);
+            clearTimeout(timeout3);
+        };
+    }
+  }, [location.pathname, location.state]);
+
+  const scrollToCollection = (category = 'Todas', search = '') => {
+    setCurrentCategory(category);
+    setCurrentSearch(search);
+    
+    // CASE 1: Coming from another page (like PDP)
+    if (location.pathname !== '/') {
+        // Navigate to Home carrying the 'jump' flag
+        navigate('/', { 
+            state: { scrollTo: 'collection' },
+            replace: true // Use replace to avoid messy history stacks
+        });
+    } 
+    // CASE 2: Already on Home
+    else {
+        if (collectionRef.current) {
+            const headerOffset = 100;
+            const elementPosition = collectionRef.current.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth' // Use smooth only when already on page
+            });
+        }
+    }
+  };
 
   const handleProductClick = (product) => {
     navigate(`/product/${product.id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen pb-10">
-      <Toaster position="top-center" richColors theme="dark" />
+    <div className="min-h-screen bg-black flex flex-col">
+      <Toaster 
+        position="top-center" 
+        theme="dark" 
+        richColors 
+        toastOptions={{
+            style: { 
+                background: '#0a0a0a', 
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff' 
+            },
+            classNames: {
+                success: '!text-[#66278b]',
+                error: '!text-[#ff4444]',
+            }
+        }}
+      />
       <Header
         onMenuClick={() => setIsMenuOpen(true)}
         onCartClick={() => setIsCartOpen(true)}
         onAdminClick={() => navigate('/hub')}
+        onScrollToCollection={scrollToCollection}
       />
 
-      <main className="pt-24 px-4 max-w-7xl mx-auto">
-        <Routes>
-          {/* Storefront */}
-          <Route path="/" element={<ProductGrid onProductClick={handleProductClick} />} />
-          <Route path="/product/:id" element={<ProductDetailWrapper />} />
+      <main className="relative flex-grow">
+        <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+                {/* Storefront Home with Hero */}
+                <Route path="/" element={
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Hero onExploreClick={() => scrollToCollection()} />
+                        <div ref={collectionRef} className="pt-24 px-4 max-w-7xl mx-auto min-h-screen">
+                            <ProductGrid 
+                                onProductClick={handleProductClick} 
+                                initialCategory={currentCategory}
+                                initialSearch={currentSearch}
+                            />
+                        </div>
+                        <Footer />
+                    </motion.div>
+                } />
 
-          {/* Authentication */}
-          <Route path="/login" element={
-            <div className="flex justify-center items-center py-10">
-              <LoginForm onToggleMode={() => navigate('/register')} onSuccess={(to) => navigate(to || '/')} />
-            </div>
-          } />
-          <Route path="/register" element={
-            <div className="flex justify-center items-center py-10">
-              <RegisterForm onToggleMode={() => navigate('/login')} onSuccess={(to) => navigate(to || '/')} />
-            </div>
-          } />
+                {/* Product Detail */}
+                <Route path="/product/:id" element={
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="pt-24 px-4 max-w-7xl mx-auto min-h-screen"
+                    >
+                        <ProductDetailWrapper onBackToCollection={() => scrollToCollection()} />
+                        <Footer />
+                    </motion.div>
+                } />
 
-          <Route path="/checkout" element={
-            <ProtectedRoute>
-              <Checkout onBack={() => navigate(-1)} onSuccess={() => navigate('/')} />
-            </ProtectedRoute>
-          } />
+                {/* Authentication */}
+                <Route path="/login" element={
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.98 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        exit={{ opacity: 0, scale: 1.02 }}
+                        className="flex justify-center items-center py-10 pt-32 min-h-[80vh]"
+                    >
+                        <LoginForm onToggleMode={() => navigate('/register')} onSuccess={(to) => navigate(to || '/')} />
+                    </motion.div>
+                } />
+                <Route path="/register" element={
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.98 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        exit={{ opacity: 0, scale: 1.02 }}
+                        className="flex justify-center items-center py-10 pt-32 min-h-[80vh]"
+                    >
+                        <RegisterForm onToggleMode={() => navigate('/login')} onSuccess={(to) => navigate(to || '/')} />
+                    </motion.div>
+                } />
 
-          {/* Post-login module hub (staff only) */}
-          <Route path="/hub" element={
-            <ProtectedRoute staffOnly>
-              <ModuleHub />
-            </ProtectedRoute>
-          } />
+                <Route path="/checkout" element={
+                    <motion.div 
+                        initial={{ opacity: 0, x: 10 }} 
+                        animate={{ opacity: 1, x: 0 }} 
+                        exit={{ opacity: 0, x: -10 }}
+                        className="pt-20 px-4 max-w-7xl mx-auto h-[calc(100vh-80px)] overflow-hidden"
+                    >
+                        <ProtectedRoute>
+                            <Checkout onBack={() => navigate(-1)} onSuccess={() => navigate('/')} />
+                        </ProtectedRoute>
+                    </motion.div>
+                } />
 
-          {/* Back-office modules, each gated by its permission */}
-          <Route path="/crm/*" element={
-            <ProtectedRoute staffOnly moduleRequired="crm">
-              <CrmModule />
-            </ProtectedRoute>
-          } />
-          <Route path="/scm/*" element={
-            <ProtectedRoute staffOnly moduleRequired="scm">
-              <ScmModule />
-            </ProtectedRoute>
-          } />
-          <Route path="/erp/*" element={
-            <ProtectedRoute staffOnly moduleRequired="erp">
-              <ErpModule />
-            </ProtectedRoute>
-          } />
+                {/* Post-login module hub (staff only) */}
+                <Route path="/hub" element={
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        className="pt-32 px-4 max-w-7xl mx-auto"
+                    >
+                        <ProtectedRoute staffOnly>
+                        <ModuleHub />
+                        </ProtectedRoute>
+                    </motion.div>
+                } />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+                {/* Back-office modules */}
+                <Route path="/crm/*" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 px-4 max-w-7xl mx-auto">
+                        <ProtectedRoute staffOnly moduleRequired="crm">
+                        <CrmModule />
+                        </ProtectedRoute>
+                    </motion.div>
+                } />
+                <Route path="/scm/*" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 px-4 max-w-7xl mx-auto">
+                        <ProtectedRoute staffOnly moduleRequired="scm">
+                        <ScmModule />
+                        </ProtectedRoute>
+                    </motion.div>
+                } />
+                <Route path="/erp/*" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-32 px-4 max-w-7xl mx-auto">
+                        <ProtectedRoute staffOnly moduleRequired="erp">
+                        <ErpModule />
+                        </ProtectedRoute>
+                    </motion.div>
+                } />
+
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </AnimatePresence>
       </main>
 
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onCheckout={() => { setIsCartOpen(false); navigate('/checkout'); }}
+        onScrollToCollection={scrollToCollection}
       />
 
-      <NavMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <NavMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        onScrollToCollection={scrollToCollection}
+      />
 
       {/* Quick access to the hub for logged-in staff */}
       {isAuthenticated && isStaff && (
         <button
           onClick={() => navigate('/hub')}
-          className="fixed bottom-6 right-6 z-50 bg-neon-lime text-dark-card px-5 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(219,255,0,0.3)] hover:scale-105"
+          className="fixed bottom-6 right-6 z-50 bg-white text-black px-5 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-2xl hover:scale-105"
         >
           Menu de Modulos
         </button>

@@ -97,7 +97,7 @@ const RestockModal = ({ isOpen, onClose, item, onDone }) => {
             footer={
                 <>
                     <button onClick={() => submit(false)} disabled={saving || !item.supplier_id} className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white border border-white/10 transition-all disabled:opacity-30">Solo crear pedido</button>
-                    <button onClick={() => submit(true)} disabled={saving || !item.supplier_id} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-neon-lime text-dark-card hover:scale-105 transition-all disabled:opacity-30">{saving ? 'Procesando...' : 'Reabastecer ahora'}</button>
+                    <button onClick={() => submit(true)} disabled={saving || !item.supplier_id} className="px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-white text-black hover:scale-105 transition-all disabled:opacity-30">{saving ? 'Procesando...' : 'Reabastecer ahora'}</button>
                 </>
             }
         >
@@ -109,7 +109,7 @@ const RestockModal = ({ isOpen, onClose, item, onDone }) => {
                     </div>
                     <div className="bg-white/[0.03] border border-white/5 p-5 rounded-2xl">
                         <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Stock Actual</p>
-                        <p className={`text-2xl font-black tracking-tighter mt-1 ${item.is_low ? 'text-red-500' : 'text-neon-lime'}`}>{item.stock_actual}</p>
+                        <p className={`text-2xl font-black tracking-tighter mt-1 ${item.is_low ? 'text-red-500' : 'text-white'}`}>{item.stock_actual}</p>
                     </div>
                 </div>
 
@@ -121,11 +121,11 @@ const RestockModal = ({ isOpen, onClose, item, onDone }) => {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-[9px] uppercase font-black text-white/30 tracking-[3px] ml-2">Cantidad a pedir</label>
-                        <input type="number" min="1" value={cantidad} onChange={(e) => setCantidad(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all" />
+                        <input type="number" min="1" value={cantidad} onChange={(e) => setCantidad(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all" />
                     </div>
                     <div className="space-y-2">
                         <label className="text-[9px] uppercase font-black text-white/30 tracking-[3px] ml-2">Costo unitario</label>
-                        <input type="number" min="0" step="0.01" value={costo} onChange={(e) => setCosto(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-neon-lime outline-none transition-all" />
+                        <input type="number" min="0" step="0.01" value={costo} onChange={(e) => setCosto(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:border-white outline-none transition-all" />
                     </div>
                 </div>
 

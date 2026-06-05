@@ -1,0 +1,53 @@
+import React from 'react';
+
+const Hero = ({ onExploreClick }) => {
+  return (
+    <section className="relative h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden mb-20">
+      {/* Red Atmospheric Glow at Top */}
+      <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-red-600/20 to-transparent z-0 pointer-events-none" />
+
+      {/* Large Background Brand Text */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
+        <span className="text-[25vw] font-black text-white/[0.02] tracking-tighter uppercase leading-none">
+          DVL SUPPLY
+        </span>
+      </div>
+
+      {/* Background Effect */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black z-10" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle,rgba(255,255,255,0.03)_0%,transparent_70%)] blur-3xl animate-pulse" />
+      </div>
+
+      <div className="relative z-10 space-y-8 px-4 max-w-4xl animate-fade-in">
+        <h1 className="font-syne text-8xl md:text-[12rem] font-black tracking-[-0.05em] leading-none text-white opacity-90 select-none">
+          DVL
+        </h1>
+        
+        <div className="space-y-4">
+          <p className="text-white/60 text-lg md:text-xl font-bold uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed">
+            Diseños con carácter fuerte para quienes no temen destacar.
+          </p>
+          <p className="text-white/20 text-xs font-black uppercase tracking-[0.5em]">
+            Limited Supply Co.
+          </p>
+        </div>
+
+        <div className="pt-8">
+          <button 
+            onClick={onExploreClick}
+            className="bg-white text-black px-12 py-5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:bg-transparent hover:text-white border border-white transition-all duration-500 shadow-[0_0_40px_rgba(255,255,255,0.1)] active:scale-95 group"
+          >
+            Ver Colección
+            <span className="inline-block ml-4 group-hover:translate-y-1 transition-transform">↓</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Decorative vertical line */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px h-24 bg-gradient-to-b from-white/20 to-transparent" />
+    </section>
+  );
+};
+
+export default Hero;

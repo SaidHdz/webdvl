@@ -57,11 +57,11 @@ const ModuleHub = () => {
                             disabled={!allowed}
                             className={`group relative text-left p-10 rounded-[40px] border transition-all duration-500 overflow-hidden ${
                                 allowed
-                                    ? 'bg-dark-card border-white/10 hover:border-neon-lime/40 hover:scale-[1.02] cursor-pointer'
+                                    ? 'bg-dark-card border-white/10 hover:border-white/40 hover:scale-[1.02] cursor-pointer'
                                     : 'bg-dark-card/40 border-white/5 opacity-40 cursor-not-allowed'
                             }`}
                         >
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-neon-lime/5 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-neon-lime/10 transition-all" />
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-white/10 transition-all" />
 
                             <div className="relative z-10">
                                 <div className="flex items-start justify-between mb-8">
@@ -69,12 +69,12 @@ const ModuleHub = () => {
                                         {mod.title}
                                     </h2>
                                     {allowed ? (
-                                        <span className="text-neon-lime text-2xl group-hover:translate-x-1 transition-transform">→</span>
+                                        <span className="text-white text-2xl group-hover:translate-x-1 transition-transform">→</span>
                                     ) : (
                                         <span className="text-white/30 text-lg" title="Sin acceso">🔒</span>
                                     )}
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-[3px] text-neon-lime mb-3">
+                                <p className="text-[10px] font-black uppercase tracking-[3px] text-white mb-3">
                                     {mod.subtitle}
                                 </p>
                                 <p className="text-sm text-text-muted font-medium leading-relaxed">

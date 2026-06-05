@@ -6,12 +6,12 @@ import { supabase } from '../../../lib/supabase';
  * ERP global dashboard powered by Supabase.
  */
 const METRIC_CARDS = [
-    { key: 'totalClientes', label: 'Clientes (CRM)', accent: 'neon-lime' },
+    { key: 'totalClientes', label: 'Clientes (CRM)', accent: 'white' },
     { key: 'totalStaff', label: 'Personal Activo (RH)', accent: 'white' },
-    { key: 'totalInventario', label: 'Piezas en Stock (SCM)', accent: 'neon-lime', suffix: 'pzas' },
+    { key: 'totalInventario', label: 'Piezas en Stock (SCM)', accent: 'white', suffix: 'pzas' },
     { key: 'totalProductos', label: 'Productos en Catalogo', accent: 'white' },
     { key: 'totalPedidos', label: 'Pedidos Totales', accent: 'white' },
-    { key: 'ventasMes', label: 'Ventas (30 dias)', accent: 'neon-lime', prefix: '$' },
+    { key: 'ventasMes', label: 'Ventas (30 dias)', accent: 'white', prefix: '$' },
 ];
 
 const ErpDashboard = () => {
@@ -59,7 +59,7 @@ const ErpDashboard = () => {
     if (loading) {
         return (
             <div className="py-24 flex justify-center">
-                <div className="w-10 h-10 border-4 border-white/10 border-t-neon-lime rounded-full animate-spin" />
+                <div className="w-10 h-10 border-4 border-white/10 border-t-white rounded-full animate-spin" />
             </div>
         );
     }
@@ -84,7 +84,7 @@ const ErpDashboard = () => {
                 {METRIC_CARDS.map((card) => (
                     <div key={card.key} className="bg-dark-card border border-white/10 p-8 rounded-3xl hover:border-white/20 transition-all">
                         <p className="text-text-muted text-[10px] uppercase font-black tracking-[2px]">{card.label}</p>
-                        <p className={`text-5xl font-black mt-3 tracking-tighter ${card.accent === 'neon-lime' ? 'text-neon-lime' : 'text-white'}`}>
+                        <p className="text-5xl font-black mt-3 tracking-tighter text-white">
                             {card.prefix || ''}{Number(data[card.key]).toLocaleString('es-MX')}
                             {card.suffix && <span className="text-lg ml-1 opacity-50">{card.suffix}</span>}
                         </p>
