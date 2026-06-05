@@ -13,10 +13,10 @@ const Footer = () => {
         <div className="col-span-1 md:col-span-2 space-y-8">
           <img src={logo} alt="DVL Supply" className="h-16 w-auto object-contain opacity-80" />
           <p className="text-white/40 text-lg md:text-xl font-medium leading-relaxed max-w-2xl italic">
-            El mundo ya tiene demasiada ropa aburrida y gente sin estilo. DVL es mi manifiesto: 
-            piezas de edición limitada con un diseño impecable y un flow ridículo. Está hecha 
-            para los que están listos para dejar de pasar desapercibidos e intentar rozar mi nivel. 
-            Si no estás listo, la salida está arriba.
+            "Si todos lo tienen, definitivamente no es DVL." <br />
+            Mi manifiesto es simple: piezas de edición limitada con un diseño impecable y un flow 
+            ridículo. Está hecha para los que están listos para dejar de pasar desapercibidos 
+            e intentar rozar mi nivel.
           </p>
         </div>
 

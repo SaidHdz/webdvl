@@ -36,8 +36,8 @@ const Hero = ({ onExploreClick }) => {
         
         <div className="space-y-6">
           <p className="text-white/60 font-black text-xl md:text-2xl uppercase tracking-[0.2em] max-w-4xl mx-auto leading-relaxed">
-            EL MUNDO YA TIENE DEMASIADA ROPA ABURRIDA. <br className="hidden md:block" />
-            CREADO POR MÍ, PARA LOS QUE BUSCAN ROZAR MI FLOW.
+            SI TODOS LO TIENEN, <br className="hidden md:block" />
+            DEFINITIVAMENTE NO ES <span className="text-white">DVL.</span>
           </p>
           <p className="text-white/20 text-[10px] md:text-xs font-black uppercase tracking-[0.6em] pt-2">
             DROP 01 — POR DIAVLO
