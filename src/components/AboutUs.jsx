@@ -13,7 +13,7 @@ const AboutUs = () => {
 
     return (
         <div className="min-h-screen bg-[#050505] flex flex-col">
-            <main className="flex-grow pt-40 px-6 lg:px-12 max-w-7xl mx-auto w-full space-y-32 mb-40">
+            <main className="flex-grow pt-40 px-6 lg:px-12 max-w-[1600px] mx-auto w-full space-y-32 mb-40">
                 
                 {/* Navigation & Exit */}
                 <div className="flex justify-between items-center -mt-20 mb-20">
@@ -204,8 +204,8 @@ const AboutUs = () => {
                         className="relative z-10 text-center px-6"
                     >
                         <h2 className="text-5xl lg:text-8xl font-syne font-black uppercase tracking-tighter text-white leading-none mb-10">
-                            "LA MODA PASA DE MODA. <br />
-                            MI FLOW ES <span className="text-[#bf4a4a]">ETERNO."</span>
+                            "LA MODA ES PASAJERA, <br />
+                            MI ESTILO ES <span className="text-[#bf4a4a]">ETERNO."</span>
                         </h2>
                         <p className="text-sm font-black uppercase tracking-[12px] text-white/40">— DIAVLO</p>
                     </motion.div>

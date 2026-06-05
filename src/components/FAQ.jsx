@@ -29,7 +29,7 @@ const FAQ = () => {
 
     return (
         <div className="min-h-screen bg-[#050505] flex flex-col">
-            <main className="flex-grow pt-40 px-6 lg:px-12 max-w-4xl mx-auto w-full space-y-24 mb-40">
+            <main className="flex-grow pt-40 px-6 lg:px-12 max-w-6xl mx-auto w-full space-y-24 mb-40">
                 
                 {/* Navigation & Exit */}
                 <div className="flex justify-between items-center -mt-20 mb-20">
