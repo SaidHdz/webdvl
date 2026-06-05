@@ -108,7 +108,7 @@ const Checkout = ({ onBack, onSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-slide-up max-w-6xl mx-auto w-full h-full pb-4">
+    <div className="flex flex-col gap-4 lg:gap-6 animate-slide-up max-w-6xl mx-auto w-full h-full pb-4 px-2 lg:px-0">
       <button 
         onClick={onBack}
         className="self-start text-[9px] uppercase font-black tracking-[3px] text-white/40 hover:text-white transition-all duration-300 flex items-center gap-2 group"
@@ -116,11 +116,11 @@ const Checkout = ({ onBack, onSuccess }) => {
         <span className="text-base group-hover:-translate-x-1 transition-transform">←</span> Revisar Carrito
       </button>
 
-      <div className="grid lg:grid-cols-5 gap-6 items-start overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start overflow-y-auto lg:overflow-hidden pb-20 lg:pb-0">
         {/* Formulario de Envío */}
-        <div className="lg:col-span-3 space-y-4 h-full overflow-y-auto pr-2 custom-scrollbar max-h-[calc(100vh-180px)]">
+        <div className="lg:col-span-3 space-y-4 h-auto lg:h-full lg:overflow-y-auto lg:pr-2 custom-scrollbar lg:max-h-[calc(100vh-180px)]">
           <div className="bg-white/5 backdrop-blur-3xl border border-white/10 p-6 rounded-[32px]">
-            <h3 className="font-syne text-2xl font-black uppercase tracking-tighter text-white mb-6">Información de Entrega</h3>
+            <h3 className="font-syne text-xl lg:text-2xl font-black uppercase tracking-tighter text-white mb-6">Información de Entrega</h3>
             
             <form id="checkout-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -177,7 +177,7 @@ const Checkout = ({ onBack, onSuccess }) => {
                 </div>
               ) : (
                 <div className="space-y-4 animate-fade-in">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                           <label className="text-[8px] uppercase font-black text-white/30 tracking-[3px] ml-4">Calle y Número</label>
                           <input 
@@ -196,8 +196,8 @@ const Checkout = ({ onBack, onSuccess }) => {
                       </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-4">
-                      <div className="space-y-1 col-span-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="space-y-1 col-span-2 md:col-span-2">
                           <label className="text-[8px] uppercase font-black text-white/30 tracking-[3px] ml-4">Ciudad y Estado</label>
                           <input 
                               {...register('ciudad')}
@@ -205,7 +205,7 @@ const Checkout = ({ onBack, onSuccess }) => {
                               className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white outline-none focus:border-white/40 text-[11px] font-bold uppercase"
                           />
                       </div>
-                      <div className="space-y-1 col-span-1">
+                      <div className="space-y-1 col-span-1 md:col-span-1">
                           <label className="text-[8px] uppercase font-black text-white/30 tracking-[3px] ml-4">C.P.</label>
                           <input 
                               {...register('cp')}
@@ -230,8 +230,8 @@ const Checkout = ({ onBack, onSuccess }) => {
         </div>
 
         {/* Resumen de Orden */}
-        <div className="lg:col-span-2">
-          <div className="bg-black/40 backdrop-blur-3xl border border-white/10 p-8 rounded-[32px] shadow-2xl">
+        <div className="lg:col-span-2 pb-10 lg:pb-0">
+          <div className="bg-black/40 backdrop-blur-3xl border border-white/10 p-6 lg:p-8 rounded-[32px] shadow-2xl sticky lg:top-28">
             <h3 className="font-syne text-xl font-black uppercase tracking-tighter text-white mb-6 border-b border-white/5 pb-3">Resumen</h3>
             
             <div className="space-y-4 mb-6 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
@@ -242,7 +242,7 @@ const Checkout = ({ onBack, onSuccess }) => {
                   </div>
                   <div className="flex-grow min-w-0">
                     <p className="text-[10px] font-bold uppercase text-white truncate">{item.name}</p>
-                    <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest">
+                    <p className="text-[8px] uppercase font-bold text-white/30 tracking-widest">
                         {item.size} x{item.quantity} — <span className="text-white font-black">${item.price * item.quantity}</span>
                     </p>
                   </div>
@@ -263,7 +263,7 @@ const Checkout = ({ onBack, onSuccess }) => {
               </div>
               <div className="pt-6 border-t border-[#1a1a1a]">
                 <span className="text-[8px] font-black uppercase tracking-[5px] text-white/20 block mb-1 text-center">Total</span>
-                <p className="text-4xl font-syne font-black text-white leading-none text-center tracking-tighter">
+                <p className="text-3xl lg:text-4xl font-syne font-black text-white leading-none text-center tracking-tighter">
                   ${cartTotal + (metodoEnvio === 'local' ? 0 : 150)}
                 </p>
               </div>
@@ -273,7 +273,7 @@ const Checkout = ({ onBack, onSuccess }) => {
               form="checkout-form"
               type="submit"
               disabled={loading || cart.length === 0}
-              className={`w-full bg-white text-black py-5 rounded-xl font-black text-[10px] uppercase tracking-[4px] mt-8 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.1)] active:scale-95 ${loading ? 'opacity-50' : ''}`}
+              className={`w-full bg-white text-black py-4 lg:py-5 rounded-xl font-black text-[10px] uppercase tracking-[4px] mt-8 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.1)] active:scale-95 ${loading ? 'opacity-50' : ''}`}
             >
               {loading ? 'Procesando...' : 'Finalizar Compra'}
             </button>

@@ -76,15 +76,44 @@ const ProductDetail = ({ product, onBack }) => {
         </button>
       </nav>
 
-      <div className="flex flex-col lg:flex-row-reverse min-h-screen relative z-10">
+      <div className="flex flex-col lg:flex-row min-h-screen relative z-10">
         
-        {/* Right Section: Information Card (Compacted Layout) */}
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-12 z-20">
-          <div className="max-w-md w-full bg-white/[0.04] backdrop-blur-3xl border border-white/10 p-10 lg:p-11 rounded-[48px] shadow-2xl animate-slide-up">
+        {/* Product Focus Section (Top on mobile, Left on desktop) */}
+        <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 overflow-hidden pt-32 lg:pt-24 shrink-0">
+          {/* Main Product Image */}
+          <div className={`relative z-10 w-full h-[40vh] lg:h-full lg:max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
+            <img 
+              src={imagesList[currentImageIndex]} 
+              alt={product.name} 
+              className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+            />
+          </div>
+
+          {/* Thumbnails: Horizontal row on mobile, Vertical column on desktop */}
+          <div className="mt-8 lg:mt-0 lg:absolute lg:left-8 lg:top-1/2 lg:-translate-y-1/2 z-30 flex flex-row lg:flex-col gap-3 justify-center">
+            {imagesList.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => handleThumbnailClick(i)}
+                className={`w-12 h-12 lg:w-16 lg:h-16 rounded-xl border-2 overflow-hidden transition-all duration-500 bg-white/5 backdrop-blur-md shrink-0 ${
+                  i === currentImageIndex 
+                  ? 'border-white scale-110 shadow-xl' 
+                  : 'border-white/5 opacity-30 hover:opacity-80'
+                }`}
+              >
+                <img src={img} alt="Preview" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Information Card Section (Bottom on mobile, Right on desktop) */}
+        <div className="flex-1 flex items-start lg:items-center justify-center p-6 lg:p-12 z-20 pb-24 lg:pb-12">
+          <div className="max-w-md w-full bg-white/[0.04] backdrop-blur-3xl border border-white/10 p-8 lg:p-11 rounded-[40px] lg:rounded-[48px] shadow-2xl animate-slide-up">
             
             {/* Badge & Category */}
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-[10px] font-black uppercase tracking-[4px] text-white/30">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-[9px] font-black uppercase tracking-[4px] text-white/30">
                 {product.category}
               </span>
               <span className={`text-[8px] font-black uppercase tracking-[2px] px-3 py-1 rounded-full border ${soldOut ? 'bg-red-500/20 text-red-500 border-red-500/20' : product.is_low ? 'bg-amber-500/20 text-amber-500 border-amber-500/20' : 'bg-white/5 text-white/40 border-white/5'}`}>
@@ -97,7 +126,7 @@ const ProductDetail = ({ product, onBack }) => {
               <h1 className="font-syne text-4xl lg:text-5xl font-black uppercase tracking-[-0.04em] leading-[0.9] text-white mb-4">
                 {product.name}
               </h1>
-              <p className="text-white/60 text-base font-bold italic tracking-tight leading-snug">
+              <p className="text-white/60 text-sm lg:text-base font-bold italic leading-tight">
                 "Diseño de edición limitada, {product.description?.split('/')[0] || '100% algodón oversize'}"
               </p>
             </div>
@@ -172,35 +201,6 @@ const ProductDetail = ({ product, onBack }) => {
             >
               {soldOut ? 'Agotado' : 'Añadir al Carrito'}
             </motion.button>
-          </div>
-        </div>
-
-        {/* Left Section: Product Focus (Clean View) */}
-        <div className="flex-[1.2] relative flex items-center justify-center p-12 lg:p-24 overflow-hidden">
-          {/* Main Product Image */}
-          <div className={`relative z-10 w-full h-full max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
-            <img 
-              src={imagesList[currentImageIndex]} 
-              alt={product.name} 
-              className="w-full h-full object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)] scale-90 lg:scale-100"
-            />
-          </div>
-
-          {/* Vertical Thumbnails */}
-          <div className="absolute left-8 lg:left-12 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3">
-            {imagesList.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => handleThumbnailClick(i)}
-                className={`w-14 h-14 lg:w-16 lg:h-16 rounded-xl border-2 overflow-hidden transition-all duration-500 bg-white/5 backdrop-blur-md ${
-                  i === currentImageIndex 
-                  ? 'border-white scale-110 shadow-xl' 
-                  : 'border-white/5 opacity-30 hover:opacity-80'
-                }`}
-              >
-                <img src={img} alt="Preview" className="w-full h-full object-cover" />
-              </button>
-            ))}
           </div>
         </div>
 
