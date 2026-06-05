@@ -1,8 +1,10 @@
 import React from 'react';
 
+import logo from '../assets/logo_dvl.png';
+
 const Hero = ({ onExploreClick }) => {
   return (
-    <section className="relative h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden mb-20">
+    <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden mb-20 pt-32 lg:pt-0">
       {/* Red Atmospheric Glow at Top */}
       <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-red-600/20 to-transparent z-0 pointer-events-none" />
 
@@ -25,10 +27,12 @@ const Hero = ({ onExploreClick }) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)] blur-3xl animate-pulse" />
       </div>
 
-      <div className="relative z-10 space-y-8 px-6 max-w-5xl animate-fade-in">
-        <h1 className="font-syne text-8xl md:text-[12rem] font-black tracking-[-0.05em] leading-none text-white opacity-90 select-none mb-4">
-          DVL
-        </h1>
+      <div className="relative z-10 space-y-8 px-6 max-w-5xl animate-fade-in flex flex-col items-center">
+        <img 
+            src={logo} 
+            alt="DVL Supply" 
+            className="w-[200px] sm:w-[300px] md:w-[500px] h-auto object-contain mb-8 animate-float drop-shadow-[0_0_50px_rgba(255,255,255,0.1)]" 
+        />
         
         <div className="space-y-6">
           <p className="text-white/60 font-black text-xl md:text-2xl uppercase tracking-[0.2em] max-w-4xl mx-auto leading-relaxed">

@@ -80,10 +80,10 @@ const ProductDetail = ({ product, onBack }) => {
 
         <div className="flex flex-col lg:flex-row h-auto lg:h-screen relative z-10">
             
-            {/* Product Section - Centered with balanced padding */}
-            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-56 lg:pt-12 shrink-0 overflow-hidden">
+            {/* Product Section - Image lowered for balance, size reverted to original */}
+            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-64 lg:pt-32 shrink-0 overflow-hidden">
                 {/* Main Product Image */}
-                <div className={`relative z-10 w-full h-[45vh] lg:h-full lg:max-h-[65vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
+                <div className={`relative z-10 w-full h-[40vh] lg:h-full lg:max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
                     <img src={imagesList[currentImageIndex]} alt={product.name} className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
                 </div>
 
