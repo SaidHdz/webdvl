@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
 
     /**
      * Registers a new customer.
-     * Note: The public profile is created automatically by a database trigger.
+     * Includes a fallback to manually create the profile if the trigger fails.
      */
     const register = async (userData) => {
         try {
@@ -101,12 +101,35 @@ export const AuthProvider = ({ children }) => {
                 }
             });
             if (error) throw error;
+            if (!data.user) throw new Error('No se pudo crear el usuario');
             
-            // Wait a moment for the trigger to finish profile creation
-            const profile = await fetchProfile(data.user.id);
+            // 1. Give the trigger a small window to work
+            let profile = await fetchProfile(data.user.id);
+            
+            // 2. FALLBACK: If trigger didn't create the profile, do it manually
+            if (!profile) {
+                console.log('Trigger not detected, performing manual profile creation...');
+                const { error: insertError } = await supabase
+                    .from('users')
+                    .insert({
+                        id: data.user.id,
+                        name: userData.nombre || userData.name,
+                        email: userData.email,
+                        type: 'customer',
+                        status: 'Activo'
+                    });
+                
+                if (!insertError) {
+                    profile = await fetchProfile(data.user.id);
+                } else {
+                    console.error('Manual insert failed:', insertError.message);
+                }
+            }
+
             setUser(profile);
             return { success: true, user: profile };
         } catch (error) {
+            console.error('Registration error:', error.message);
             return { success: false, message: error.message };
         }
     };
