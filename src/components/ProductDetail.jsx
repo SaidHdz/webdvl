@@ -210,7 +210,7 @@ const ProductDetail = ({ product, onBack }) => {
                 >
                     <div className="flex justify-between items-start">
                         <div className="space-y-2">
-                            <h2 className="text-3xl font-syne font-black uppercase tracking-tighter text-white">GUÍA DE ARMADURA</h2>
+                            <h2 className="text-3xl font-syne font-black uppercase tracking-tighter text-white">GUÍA DE ROPA</h2>
                             <p className="text-[10px] font-black uppercase tracking-[4px] text-[#bf4a4a]">Corte Oversize Industrial</p>
                         </div>
                         <button onClick={() => setShowSizeGuide(false)} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all border border-white/5">

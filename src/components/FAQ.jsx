@@ -11,7 +11,7 @@ const FAQ = () => {
     const faqs = [
         {
             q: "¿CUÁNTO TARDA EN LLEGAR MI ENVÍO NACIONAL?",
-            a: "El flow no espera, pero la logística sí. Los envíos nacionales tardan de 3 a 5 días hábiles después de procesar tu orden. Recibirás un número de guía para que rastrees tu armadura en tiempo real."
+            a: "El flow no espera, pero la logística sí. Los envíos nacionales tardan de 3 a 5 días hábiles después de procesar tu orden. Recibirás un número de guía para que rastrees tus prendas en tiempo real."
         },
         {
             q: "¿PUEDO PAGAR EN EFECTIVO AL RECOGER EN CITADINA?",
@@ -19,7 +19,7 @@ const FAQ = () => {
         },
         {
             q: "¿HACEN CAMBIOS DE TALLA O DEVOLUCIONES?",
-            a: "Escucha bien: Nuestros DROPS son de edición limitada. No reponemos stock. Por lo tanto, todas las ventas son finales. Revisa la Guía de Armadura antes de comprar; no hay segundas oportunidades."
+            a: "Escucha bien: Nuestros DROPS son de edición limitada. No reponemos stock. Por lo tanto, todas las ventas son finales. Revisa la Guía de Tallas antes de comprar; no hay segundas oportunidades."
         },
         {
             q: "¿LA ROPA ES REALMENTE OVERSIZE?",
