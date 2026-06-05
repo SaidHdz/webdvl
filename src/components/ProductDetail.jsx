@@ -22,11 +22,13 @@ const ProductDetail = ({ product, onBack }) => {
 
   const theme = useMemo(() => {
     const name = product.name.toLowerCase();
-    const isPurple = name.includes('slime') || name.includes('eyes') || name.includes('heart');
+    const isPurple = name.includes('slime') || name.includes('eyes');
+    const isYellow = name.includes('heart');
     const isGreen = name.includes('flowers');
     const isRed = (name.includes('devil') && !name.includes('beanie')) || name.includes('voodoo') || name.includes('diavloo') || name.includes('see you');
 
     if (isPurple) return { accent: '#66278b', glow: 'rgba(102, 39, 139, 0.6)' };
+    if (isYellow) return { accent: '#f1d069', glow: 'rgba(241, 208, 105, 0.6)' };
     if (isGreen) return { accent: '#32a83e', glow: 'rgba(50, 168, 62, 0.6)' };
     if (isRed) return { accent: '#bf4a4a', glow: 'rgba(191, 74, 74, 0.6)' };
     return { accent: '#ffffff', glow: 'rgba(255,255,255,0.15)' };
@@ -82,8 +84,8 @@ const ProductDetail = ({ product, onBack }) => {
 
         <div className="flex flex-col lg:flex-row h-auto lg:h-screen relative z-10">
             
-            {/* Product Section - Padding reduced by half for visual balance */}
-            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-3 lg:p-12 pt-16 lg:pt-0 shrink-0 overflow-hidden">
+            {/* Product Section - Increased top padding to compensate for navbar and improve centering */}
+            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-3 lg:p-12 pt-32 lg:pt-16 shrink-0 overflow-hidden">
                 {/* Main Product Image - Strict height constraints to prevent 'enlargement' in production */}
                 <div className={`relative z-10 w-full h-[35vh] lg:h-[50vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
                     <img 
