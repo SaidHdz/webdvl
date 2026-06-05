@@ -37,38 +37,43 @@ function App() {
   const location = useLocation();
   const collectionRef = useRef(null);
 
-  // Resolute Jump-to-Collection Logic
+  // 1. Disable browser scroll restoration to prevent fighting with our logic
   useEffect(() => {
-    // We only trigger this if we arrived at '/' with the 'scrollTo: collection' flag
+    if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  // 2. Resolute Jump-to-Collection Logic
+  useEffect(() => {
     if (location.pathname === '/' && location.state?.scrollTo === 'collection') {
         const performInstantJump = () => {
             if (collectionRef.current) {
-                // Calculate absolute position
                 const headerOffset = 100;
                 const elementPosition = collectionRef.current.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-                // Force the viewport to the grid IMMEDIATELY
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'instant'
-                });
+                // Force the viewport to the grid IMMEDIATELY without any animation
+                window.scrollTo(0, offsetPosition);
                 
-                // Clear the state so refreshing the page starts at the Hero again
+                // Clear the flag
                 window.history.replaceState({}, document.title);
+                return true;
             }
+            return false;
         };
 
-        // Try multiple times to ensure we beat React's rendering and Framer Motion's transition timing
-        performInstantJump();
-        const timeout1 = setTimeout(performInstantJump, 30);
-        const timeout2 = setTimeout(performInstantJump, 100);
-        const timeout3 = setTimeout(performInstantJump, 300);
+        // Aggressive polling to beat Framer Motion's mounting cycle
+        const interval = setInterval(() => {
+            if (performInstantJump()) clearInterval(interval);
+        }, 10);
+
+        // Safety timeout
+        const timeout = setTimeout(() => clearInterval(interval), 1000);
 
         return () => {
-            clearTimeout(timeout1);
-            clearTimeout(timeout2);
-            clearTimeout(timeout3);
+            clearInterval(interval);
+            clearTimeout(timeout);
         };
     }
   }, [location.pathname, location.state]);
@@ -77,25 +82,18 @@ function App() {
     setCurrentCategory(category);
     setCurrentSearch(search);
     
-    // CASE 1: Coming from another page (like PDP)
     if (location.pathname !== '/') {
-        // Navigate to Home carrying the 'jump' flag
+        // Force replace to ensure we clean the history stack
         navigate('/', { 
             state: { scrollTo: 'collection' },
-            replace: true // Use replace to avoid messy history stacks
+            replace: true 
         });
-    } 
-    // CASE 2: Already on Home
-    else {
+    } else {
         if (collectionRef.current) {
             const headerOffset = 100;
             const elementPosition = collectionRef.current.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth' // Use smooth only when already on page
-            });
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
         }
     }
   };
