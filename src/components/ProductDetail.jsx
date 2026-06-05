@@ -80,11 +80,15 @@ const ProductDetail = ({ product, onBack }) => {
 
         <div className="flex flex-col lg:flex-row h-auto lg:h-screen relative z-10">
             
-            {/* Product Section - Image lowered for balance, size reverted to original */}
-            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-64 lg:pt-32 shrink-0 overflow-hidden">
-                {/* Main Product Image */}
-                <div className={`relative z-10 w-full h-[40vh] lg:h-full lg:max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
-                    <img src={imagesList[currentImageIndex]} alt={product.name} className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
+            {/* Product Section - Constrained and Centered for stability */}
+            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-32 lg:pt-0 shrink-0 overflow-hidden">
+                {/* Main Product Image - Strict height constraints to prevent 'enlargement' in production */}
+                <div className={`relative z-10 w-full h-[35vh] lg:h-[50vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
+                    <img 
+                        src={imagesList[currentImageIndex]} 
+                        alt={product.name} 
+                        className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)] select-none" 
+                    />
                 </div>
 
                 <div className="relative z-10 mt-8 lg:mt-0 lg:absolute lg:left-8 lg:top-1/2 lg:-translate-y-1/2 z-30 flex flex-row lg:flex-col gap-3 justify-center">
