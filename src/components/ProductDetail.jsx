@@ -84,8 +84,8 @@ const ProductDetail = ({ product, onBack }) => {
 
         <div className="flex flex-col lg:flex-row h-auto lg:h-screen relative z-10">
             
-            {/* Product Section - Increased top padding to compensate for navbar and improve centering */}
-            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-3 lg:p-12 pt-32 lg:pt-16 shrink-0 overflow-hidden">
+            {/* Product Section - Increased mobile top padding for better clearance from navigation */}
+            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-3 lg:p-12 pt-44 lg:pt-16 shrink-0 overflow-hidden">
                 {/* Main Product Image - Reverted to standard img for stability */}
                 <div className={`relative z-10 w-full h-[35vh] lg:h-[50vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
                     <img 
