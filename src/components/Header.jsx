@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection }) => {
+const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection, onScrollToTop }) => {
   const { cartCount } = useCart();
   const { user, isAuthenticated, isStaff } = useAuth();
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const Header = ({ onMenuClick, onCartClick, onAdminClick, onScrollToCollection }
     <header className="fixed top-0 left-0 w-full h-[70px] lg:h-[80px] bg-black/40 backdrop-blur-xl flex justify-between items-center px-4 lg:px-8 z-[100] border-b border-white/5">
       {/* Left: Logo & Menu */}
       <div className="flex items-center gap-4 lg:gap-8 flex-1">
-        <div className="flex items-center cursor-pointer group" onClick={() => onScrollToCollection('Todas')}>
+        <div className="flex items-center cursor-pointer group" onClick={onScrollToTop}>
             <h1 className="font-syne text-2xl lg:text-3xl font-black tracking-[-0.05em] text-white transition-all duration-500 group-hover:tracking-tighter">
             DVL
             </h1>

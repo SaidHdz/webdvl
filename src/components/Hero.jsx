@@ -6,17 +6,23 @@ const Hero = ({ onExploreClick }) => {
       {/* Red Atmospheric Glow at Top */}
       <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-red-600/20 to-transparent z-0 pointer-events-none" />
 
-      {/* Large Background Brand Text */}
+      {/* Large Background Brand Text with Fade-out */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
-        <span className="text-[25vw] font-black text-white/[0.02] tracking-tighter uppercase leading-none">
+        <span 
+          className="text-[25vw] font-black text-white/[0.02] tracking-tighter uppercase leading-none"
+          style={{
+            maskImage: 'linear-gradient(to bottom, black 50%, transparent 95%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 95%)'
+          }}
+        >
           DVL SUPPLY
         </span>
       </div>
 
       {/* Background Effect */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black z-10" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle,rgba(255,255,255,0.03)_0%,transparent_70%)] blur-3xl animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-transparent z-10" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle,rgba(255,255,255,0.02)_0%,transparent_70%)] blur-3xl animate-pulse" />
       </div>
 
       <div className="relative z-10 space-y-8 px-6 max-w-5xl animate-fade-in">
@@ -25,11 +31,11 @@ const Hero = ({ onExploreClick }) => {
         </h1>
         
         <div className="space-y-6">
-          <p className="text-white font-black text-2xl md:text-4xl uppercase tracking-tighter max-w-4xl mx-auto leading-[1.1]">
+          <p className="text-white/60 font-black text-xl md:text-2xl uppercase tracking-[0.2em] max-w-4xl mx-auto leading-relaxed">
             EL MUNDO YA TIENE DEMASIADA ROPA ABURRIDA. <br className="hidden md:block" />
             CREADO POR MÍ, PARA LOS QUE BUSCAN ROZAR MI FLOW.
           </p>
-          <p className="text-white/30 text-[10px] md:text-xs font-black uppercase tracking-[0.6em] pt-2">
+          <p className="text-white/20 text-[10px] md:text-xs font-black uppercase tracking-[0.6em] pt-2">
             DROP 01 — BY DIAVLO
           </p>
         </div>

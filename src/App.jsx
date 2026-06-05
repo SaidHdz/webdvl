@@ -98,12 +98,21 @@ function App() {
     }
   };
 
+  const scrollToTop = () => {
+    if (location.pathname !== '/') {
+        navigate('/', { replace: true });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleProductClick = (product) => {
     navigate(`/product/${product.id}`);
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Toaster 
         position="top-center" 
         theme="dark" 
@@ -125,6 +134,7 @@ function App() {
         onCartClick={() => setIsCartOpen(true)}
         onAdminClick={() => navigate('/hub')}
         onScrollToCollection={scrollToCollection}
+        onScrollToTop={scrollToTop}
       />
 
       <main className="relative flex-grow">
