@@ -10,8 +10,16 @@ const ProductDetail = ({ product, onBack }) => {
   const [selectedColor, setSelectedColor] = useState('white');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   
   const btnControls = useAnimation();
+
+  // Reactive resize check for gradient positioning
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const theme = useMemo(() => {
     const name = product.name.toLowerCase();
@@ -46,26 +54,9 @@ const ProductDetail = ({ product, onBack }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#050505] overflow-hidden">
-      {/* 1. LAYER: TRULY FIXED ATMOSPHERE */}
-      <div 
-        className="fixed inset-0 z-0 pointer-events-none transition-all duration-1000"
-        style={{ 
-          background: `radial-gradient(circle at var(--glow-pos-x, 25%) var(--glow-pos-y, 50%), ${theme.glow} 0%, transparent 75%)`,
-        }}
-      >
-        {/* CSS-only responsive positioning to avoid JS jumps during scroll */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          @media (max-width: 1023px) {
-            :root { --glow-pos-x: 50%; --glow-pos-y: 25%; }
-          }
-          @media (min-width: 1024px) {
-            :root { --glow-pos-x: 25%; --glow-pos-y: 50%; }
-          }
-        `}} />
-      </div>
-
-      {/* 2. LAYER: NAVIGATION */}
+    <div className="fixed inset-0 z-50 bg-[#050505] flex flex-col overflow-hidden">
+      
+      {/* 1. LAYER: FIXED NAVIGATION */}
       <nav className="fixed top-[80px] inset-x-0 p-6 lg:p-8 flex justify-between items-center z-[110] pointer-events-none">
         <button 
           onClick={onBack}
@@ -76,17 +67,27 @@ const ProductDetail = ({ product, onBack }) => {
         </button>
       </nav>
 
-      {/* 3. LAYER: SCROLLABLE CONTENT */}
-      <div className="absolute inset-0 z-10 overflow-y-auto overflow-x-hidden custom-scrollbar pb-20">
+      {/* 2. LAYER: SCROLLABLE CONTAINER */}
+      <div className="flex-grow overflow-y-auto overflow-x-hidden custom-scrollbar relative z-10">
         <div className="flex flex-col lg:flex-row min-h-screen relative">
             
-            {/* Product Section */}
-            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 overflow-hidden pt-32 lg:pt-24 shrink-0">
+            {/* Product Section: More top padding on mobile to separate from back button */}
+            <div className="lg:flex-[1.2] relative flex flex-col items-center justify-center p-6 lg:p-24 pt-48 lg:pt-24 shrink-0">
+                
+                {/* Dynamic Background Glow - Increased radius and opacity for more presence */}
+                <div 
+                    className="absolute inset-0 z-0 transition-all duration-1000 pointer-events-none opacity-90"
+                    style={{ 
+                        background: `radial-gradient(circle at ${isMobile ? '50% 45%' : '50% 50%'}, ${theme.glow} 0%, transparent 85%)`
+                    }}
+                />
+
+                {/* Main Product Image */}
                 <div className={`relative z-10 w-full h-[40vh] lg:h-full lg:max-h-[60vh] transition-all duration-700 transform ${isFading ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
                     <img src={imagesList[currentImageIndex]} alt={product.name} className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
                 </div>
 
-                <div className="mt-8 lg:mt-0 lg:absolute lg:left-8 lg:top-1/2 lg:-translate-y-1/2 z-30 flex flex-row lg:flex-col gap-3 justify-center">
+                <div className="relative z-10 mt-8 lg:mt-0 lg:absolute lg:left-8 lg:top-1/2 lg:-translate-y-1/2 z-30 flex flex-row lg:flex-col gap-3 justify-center">
                     {imagesList.map((img, i) => (
                     <button key={i} onClick={() => handleThumbnailClick(i)} className={`w-12 h-12 lg:w-16 lg:h-16 rounded-xl border-2 overflow-hidden transition-all duration-500 bg-white/5 backdrop-blur-md shrink-0 ${i === currentImageIndex ? 'border-white scale-110 shadow-xl' : 'border-white/5 opacity-30 hover:opacity-80'}`}>
                         <img src={img} alt="Preview" className="w-full h-full object-cover" />
@@ -96,47 +97,50 @@ const ProductDetail = ({ product, onBack }) => {
             </div>
 
             {/* Information Card Section */}
-            <div className="flex-1 flex items-start lg:items-center justify-center p-6 lg:p-12 z-20 pb-24 lg:pb-12">
-                <div className="max-w-md w-full bg-white/[0.04] backdrop-blur-3xl border border-white/10 p-8 lg:p-11 rounded-[40px] lg:rounded-[48px] shadow-2xl animate-slide-up">
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="text-[9px] font-black uppercase tracking-[3px] text-white/30">{product.category}</span>
-                        <span className={`text-[8px] font-black uppercase tracking-[2px] px-3 py-1 rounded-full border ${soldOut ? 'bg-red-500/20 text-red-500 border-red-500/20' : product.is_low ? 'bg-amber-500/20 text-amber-500 border-amber-500/20' : 'bg-white/5 text-white/40 border-white/5'}`}>
-                            {soldOut ? 'Sin Stock' : `${product.stock_actual} Disponibles`}
-                        </span>
-                    </div>
+            <div className="flex-1 flex items-start lg:items-center justify-center p-6 lg:p-12 z-20 pb-32 lg:pb-12">
+                <div className="max-w-md w-full bg-white/[0.04] backdrop-blur-3xl border border-white/10 p-8 lg:p-11 rounded-[40px] lg:rounded-[48px] shadow-2xl animate-slide-up relative">
+                    
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="text-[9px] font-black uppercase tracking-[3px] text-white/30">{product.category}</span>
+                            <span className={`text-[8px] font-black uppercase tracking-[2px] px-3 py-1 rounded-full border ${soldOut ? 'bg-red-500/20 text-red-500 border-red-500/20' : product.is_low ? 'bg-amber-500/20 text-amber-500 border-amber-500/20' : 'bg-white/5 text-white/40 border-white/5'}`}>
+                                {soldOut ? 'Sin Stock' : `${product.stock_actual} Disponibles`}
+                            </span>
+                        </div>
 
-                    <div className="mb-6">
-                        <h1 className="font-syne text-4xl lg:text-5xl font-black uppercase tracking-[-0.04em] leading-[0.9] text-white mb-4">{product.name}</h1>
-                        <p className="text-white/60 text-sm lg:text-base font-bold italic leading-tight">"Diseño de edición limitada, {product.description?.split('/')[0] || '100% algodón oversize'}"</p>
-                    </div>
+                        <div className="mb-6">
+                            <h1 className="font-syne text-4xl lg:text-5xl font-black uppercase tracking-[-0.04em] leading-[0.9] text-white mb-4">{product.name}</h1>
+                            <p className="text-white/60 text-sm lg:text-base font-bold italic leading-tight">"Diseño de edición limitada, {product.description?.split('/')[0] || '100% algodón oversize'}"</p>
+                        </div>
 
-                    <div className="space-y-7">
-                        <div className="flex items-baseline gap-3"><span className="text-4xl font-black text-white">${product.price}</span><span className="text-sm font-black text-white/60 uppercase tracking-[0.2em]">MXN</span></div>
+                        <div className="space-y-7">
+                            <div className="flex items-baseline gap-3"><span className="text-4xl font-black text-white">${product.price}</span><span className="text-sm font-black text-white/60 uppercase tracking-[0.2em]">MXN</span></div>
 
-                        <div className="space-y-3">
-                            <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Variante</span>
-                            <div className="flex gap-4">
-                                {Object.keys(product.images).map((color) => (
-                                    <button key={color} onClick={() => handleColorChange(color)} className={`w-9 h-9 rounded-full border-2 transition-all duration-500 relative flex items-center justify-center ${selectedColor === color ? 'border-white scale-110 shadow-lg' : 'border-white/10 opacity-40 hover:opacity-100'}`} style={{ backgroundColor: color === 'white' ? '#fff' : '#000' }}>
-                                        {selectedColor === color && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color === 'white' ? '#000' : '#fff' }} />}
-                                    </button>
-                                ))}
+                            <div className="space-y-3">
+                                <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Variante</span>
+                                <div className="flex gap-4">
+                                    {Object.keys(product.images).map((color) => (
+                                        <button key={color} onClick={() => handleColorChange(color)} className={`w-9 h-9 rounded-full border-2 transition-all duration-500 relative flex items-center justify-center ${selectedColor === color ? 'border-white scale-110 shadow-lg' : 'border-white/10 opacity-40 hover:opacity-100'}`} style={{ backgroundColor: color === 'white' ? '#fff' : '#000' }}>
+                                            {selectedColor === color && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color === 'white' ? '#000' : '#fff' }} />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Talla</span>
+                                <div className="flex gap-2">
+                                    {['S', 'M', 'L', 'XL'].map((size) => (
+                                        <button key={size} onClick={() => setSelectedSize(size)} className={`w-11 h-11 rounded-xl font-black text-[10px] transition-all duration-300 border ${selectedSize === size ? 'bg-white text-black border-white' : 'bg-transparent text-white border-white/5 hover:border-white/20'}`}>{size}</button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <span className="text-[9px] uppercase font-black tracking-[4px] text-white/20">Talla</span>
-                            <div className="flex gap-2">
-                                {['S', 'M', 'L', 'XL'].map((size) => (
-                                    <button key={size} onClick={() => setSelectedSize(size)} className={`w-11 h-11 rounded-xl font-black text-[10px] transition-all duration-300 border ${selectedSize === size ? 'bg-white text-black border-white' : 'bg-transparent text-white border-white/5 hover:border-white/20'}`}>{size}</button>
-                                ))}
-                            </div>
-                        </div>
+                        <motion.button animate={btnControls} onClick={handleAddToCart} disabled={soldOut} className={`w-full mt-8 py-5 rounded-[20px] font-black uppercase tracking-[4px] text-[11px] transition-all duration-500 ${soldOut ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white text-black hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95'}`}>
+                            {soldOut ? 'Agotado' : 'Añadir al Carrito'}
+                        </motion.button>
                     </div>
-
-                    <motion.button animate={btnControls} onClick={handleAddToCart} disabled={soldOut} className={`w-full mt-8 py-5 rounded-[20px] font-black uppercase tracking-[4px] text-[11px] transition-all duration-500 ${soldOut ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-white text-black hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95'}`}>
-                        {soldOut ? 'Agotado' : 'Añadir al Carrito'}
-                    </motion.button>
                 </div>
             </div>
         </div>
